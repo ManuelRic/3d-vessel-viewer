@@ -12,6 +12,8 @@ import {
     showBoatDetails
 } from './boatDetailCard.js';
 import { initDateTimeWidget } from './generalData.js';
+
+
 initDateTimeWidget();
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -83,7 +85,7 @@ let light = 2.5;
 const ambientLight = new THREE.AmbientLight(0xffffff, light/8);
 scene.add(ambientLight);
 
-const sunLight = new THREE.DirectionalLight(0xffffff, light);
+const sunLight = new THREE.DirectionalLight(0xfff7A4, light);
 sunLight.position.set(80, 120, 60);
 scene.add(sunLight);
 
