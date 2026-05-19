@@ -96,6 +96,8 @@ const sunDirection = sunLight.position.clone().normalize();
 // -----------------------------
 
 const topViewButton = document.getElementById('top-view-button');
+const toggleTrailButton = document.getElementById('toggle-trail');
+let trailsVisible = true;
 
 // -----------------------------
 // CONTROLS
@@ -881,7 +883,7 @@ function updateShipTrail(ship, now) {
 
     while (
         ship.trailTimes.length > 0 &&
-        now - ship.trailTimes[0] > 120
+        now - ship.trailTimes[0] > 220
     ) {
         ship.trailTimes.shift();
         ship.trailPositions.shift();
@@ -915,7 +917,36 @@ function updateShipTrail(ship, now) {
         ship.trailLine.geometry.dispose();
         ship.trailLine.geometry = trailGeometry;
     }
+
+    ship.trailLine.visible = trailsVisible;
 }
+
+function setShipTrailVisibility(ship, isVisible) {
+    if (ship.trailLine) {
+        ship.trailLine.visible = isVisible;
+    }
+
+    if (ship.trailOutlineLine) {
+        ship.trailOutlineLine.visible = isVisible;
+    }
+}
+
+function setTrailsVisible(isVisible) {
+    trailsVisible = isVisible;
+
+    ships.forEach(function (ship) {
+        setShipTrailVisibility(ship, trailsVisible);
+    });
+
+    toggleTrailButton.setAttribute('aria-pressed', String(trailsVisible));
+    toggleTrailButton.classList.toggle('is-off', !trailsVisible);
+}
+
+toggleTrailButton.addEventListener('click', function () {
+    setTrailsVisible(!trailsVisible);
+});
+
+setTrailsVisible(trailsVisible);
 
 let trailSimulationTime = 0;
 

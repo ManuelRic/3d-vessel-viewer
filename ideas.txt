@@ -1,12 +1,15 @@
 Now:    
     ✅ add vessel name on hover
+    remove lower opacity on trail off button
+    remove water texture since the waves will be created by gerstner waves
     add vessel trail on hover
-    single click vessel info, double click zoom in +extra info
+    ✅ single click vessel info, double click zoom in +extra info
     enable/disable vessel trail individually for each vessel
     add cranes
+    add port and surroundings
     add collision (no phase through so when tug boats push it will be aesthetically pleasing)?
     add always on/off trail option in vessel info
-    add trail on/off button for all trails (maybe except explictly always on or off)
+    ✅ add trail on/off button for all trails (maybe except explictly always on or off)
     add settings menu
     add avatar
     option to only show certain vessels or remove certain type of vessels (e.g. view only tug boats)
@@ -17,6 +20,7 @@ Now:
     enable disable light direction
     add small map to move camera around? 
     ✅ smooth transition on vessel info card
+    if vessel finder indicates, not only vessel facing direction, but heading direction I can tweak the wave trace for tug boats so that it shows them pushing or pulling
 
     !Implement all control features
 
@@ -24,6 +28,6 @@ Future:
     better textures and lighting
     reactive water texture  ==> https://github.com/martinRenou/threejs-water !!!
     make water reflection only visible from sun direction side
-    add clock with current date-time
+    ✅ add clock with current date-time
     add meotorological conditions
     change to angular
