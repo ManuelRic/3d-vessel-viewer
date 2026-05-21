@@ -26,6 +26,7 @@ Now:
 
 Future:
     better textures and lighting
+    depth map for the port + danger zone warnings
     reactive water texture  ==> https://github.com/martinRenou/threejs-water !!!
     make water reflection only visible from sun direction side
     ✅ add clock with current date-time

@@ -29,89 +29,15 @@
         </div>
     </div>
     <div class="icon-container">
-        <button class="control-button"  id="top-view-button" type="button">
-            <svg
-                class="control-button-svg"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 512 512"
-            >
-                <g
-                    transform="translate(0,512) scale(0.1,-0.1)"
-                    fill="currentColor"
-                    stroke="none"
-                >
-                    <path d="M18 4808 c137 -229 167 -269 322 -426 117 -118 163 -157 222 -190 41
-                    -22 87 -44 101 -47 15 -4 29 -15 32 -25 3 -10 20 -23 38 -30 18 -7 71 -30 119
-                    -51 48 -22 122 -46 165 -55 101 -21 181 -58 273 -125 117 -85 132 -104 180
-                    -219 24 -58 54 -119 66 -135 13 -17 53 -93 90 -170 37 -77 78 -154 90 -170 13
-                    -17 32 -52 44 -79 11 -27 33 -65 49 -85 16 -20 38 -56 51 -81 12 -25 37 -59
-                    56 -77 19 -18 34 -41 34 -52 0 -11 10 -32 23 -48 37 -45 84 -136 101 -195 23
-                    -76 10 -133 -54 -238 -29 -47 -74 -130 -102 -185 -94 -187 -184 -289 -318
-                    -359 l-72 -38 6 -39 c20 -127 26 -109 -48 -152 -36 -22 -66 -41 -66 -43 0 -11
-                    41 -83 50 -89 5 -3 18 -2 27 4 15 8 26 2 59 -30 l40 -39 65 41 c82 54 110 65
-                    184 74 79 9 90 16 126 80 61 108 80 118 440 229 87 27 134 48 190 86 40 27 84
-                    50 98 50 13 0 143 -39 290 -86 146 -47 358 -116 471 -151 113 -36 225 -74 250
-                    -83 25 -10 95 -32 155 -50 151 -43 220 -82 267 -151 20 -30 85 -148 144 -264
-                    l107 -210 101 -100 c56 -55 109 -112 119 -127 9 -15 35 -37 56 -48 21 -10 56
-                    -39 77 -64 74 -85 254 -217 254 -186 0 22 16 7 31 -29 18 -43 73 -81 91 -63 7
-                    7 -11 76 -56 214 -55 170 -87 245 -194 463 -71 143 -160 312 -199 375 -39 63
-                    -109 192 -156 285 -97 193 -133 247 -178 271 -17 8 -122 49 -233 89 -431 157
-                    -494 189 -734 373 -68 52 -128 104 -133 116 -16 34 15 275 38 298 29 28 190
-                    90 216 83 12 -4 39 -18 59 -32 30 -20 40 -23 57 -14 11 7 23 24 27 39 3 15 7
-                    33 10 40 6 21 -22 79 -48 95 -12 8 -50 21 -83 28 -70 15 -106 37 -135 84 -48
-                    77 -225 100 -340 43 -30 -15 -83 -52 -118 -83 -139 -121 -210 -137 -308 -70
-                    -181 125 -327 311 -494 631 -208 400 -212 406 -263 445 -84 63 -256 160 -407
-                    229 -80 37 -203 95 -273 130 -140 67 -338 136 -572 198 -137 37 -361 124 -507
-                    198 -26 13 -57 24 -69 24 l-21 0 20 -32z"/>
-                </g>
-            </svg>
+        <button class="control-button" id="settings" type="button">
+            <svg class="control-button-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sliders-horizontal-icon lucide-sliders-horizontal"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></svg>        
         </button>
+        <button class="control-button"  id="top-view-button" type="button">
+            <svg class="control-button-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-land-plot-icon lucide-land-plot"><path d="m12 8 6-3-6-3v10"/><path d="m8 11.99-5.5 3.14a1 1 0 0 0 0 1.74l8.5 4.86a2 2 0 0 0 2 0l8.5-4.86a1 1 0 0 0 0-1.74L16 12"/><path d="m6.49 12.85 11.02 6.3"/><path d="M17.51 12.85 6.5 19.15"/></svg>        
+        </button>
+
         <button class="control-button" id="toggle-trail" type="button">
-           <svg
-            class="control-button-svg" id="toggle-trail-icon"
-            viewBox="0 0 512 512"
-            role="img"
-            aria-label="Filled side view cargo ship with stern trail"
-        >
-            <!-- keep the same overall geometry, but fill the closed shapes -->
-            <g fill="currentColor" stroke="none">
-                <!-- rear cabin / superstructure -->
-                <path d="M166 316V220H218V184H270V316Z" />
-                <path d="M218 184V148H262V184Z" />
-
-                <!-- hull -->
-                <path
-                    d="M134 294
-                    H218
-                    V318
-                    H400
-                    L430 286
-                    H486
-                    L466 366
-                    C454 398 420 412 374 412
-                    H146
-                    Z"
-                />
-
-                <!-- porthole -->
-                <circle cx="430" cy="318" r="8" />
-            </g>
-
-            <!-- keep the rounded line look exactly where the original used open strokes -->
-            <g
-                fill="none"
-                stroke="currentColor"
-                stroke-width="22"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            >
-                <!-- stern trail -->
-                <path d="M42 352H132" />
-
-                <!-- cabin detail line -->
-                <path d="M166 220H270" />
-            </g>
-        </svg>
+           <svg class="control-button-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-line-squiggle-icon lucide-line-squiggle"><path d="M7 3.5c5-2 7 2.5 3 4C1.5 10 2 15 5 16c5 2 9-10 14-7s.5 13.5-4 12c-5-2.5.5-11 6-2"/></svg>
         </button>
     </div>
     <div id="vessel-hover-label"></div>
