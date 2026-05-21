@@ -116,11 +116,10 @@ controls.enablePan = true;
 controls.panSpeed = 1.1;
 controls.screenSpacePanning = true;
 
-// Left click drag pans around the map, right click drag rotates.
+// Left click drag pans around the map, right click drag looks around in place.
 controls.mouseButtons = {
     LEFT: THREE.MOUSE.PAN,
-    MIDDLE: THREE.MOUSE.DOLLY,
-    RIGHT: THREE.MOUSE.ROTATE
+    MIDDLE: THREE.MOUSE.DOLLY
 };
 
 controls.target.set(0, 0, 0);
@@ -216,10 +215,66 @@ function getShipFocusOffset() {
 // -----------------------------
 
 const cameraDragThreshold = 5;
+const cameraLookSensitivity = 0.005;
+const minCameraLookPhi = 0.05;
+const maxCameraLookPhi = Math.PI - 0.05;
 let cameraPointerStart = null;
+let cameraRightPointer = null;
 let isCameraDragging = false;
 let suppressNextClick = false;
 let suppressClickTimeout = null;
+
+function getCameraOrbitTarget() {
+    if (focusedShip) {
+        return getShipCenter(focusedShip.model);
+    }
+
+    return defaultCameraTarget.clone();
+}
+
+function rotateCameraInPlace(movementX, movementY) {
+    const lookDirection = new THREE.Vector3()
+        .subVectors(controls.target, camera.position);
+
+    if (lookDirection.lengthSq() === 0) {
+        camera.getWorldDirection(lookDirection);
+    }
+
+    const lookSpherical = new THREE.Spherical().setFromVector3(lookDirection);
+
+    lookSpherical.theta -= movementX * cameraLookSensitivity;
+    lookSpherical.phi = THREE.MathUtils.clamp(
+        lookSpherical.phi + movementY * cameraLookSensitivity,
+        minCameraLookPhi,
+        maxCameraLookPhi
+    );
+
+    lookDirection.setFromSpherical(lookSpherical);
+    controls.target.copy(camera.position).add(lookDirection);
+    controls.update();
+}
+
+function rotateCameraAroundTarget(movementX, movementY) {
+    const orbitTarget = getCameraOrbitTarget();
+    const cameraOffset = new THREE.Vector3()
+        .subVectors(camera.position, orbitTarget);
+
+    if (cameraOffset.lengthSq() === 0) return;
+
+    const orbitSpherical = new THREE.Spherical().setFromVector3(cameraOffset);
+
+    orbitSpherical.theta -= movementX * cameraLookSensitivity;
+    orbitSpherical.phi = THREE.MathUtils.clamp(
+        orbitSpherical.phi + movementY * cameraLookSensitivity,
+        minCameraLookPhi,
+        maxCameraLookPhi
+    );
+
+    cameraOffset.setFromSpherical(orbitSpherical);
+    camera.position.copy(orbitTarget).add(cameraOffset);
+    controls.target.copy(orbitTarget);
+    controls.update();
+}
 
 function suppressClickAfterCameraDrag() {
     suppressNextClick = true;
@@ -235,6 +290,28 @@ function suppressClickAfterCameraDrag() {
 }
 
 renderer.domElement.addEventListener('pointerdown', function (event) {
+    if (event.button === 2) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        cameraRightPointer = {
+            id: event.pointerId,
+            x: event.clientX,
+            y: event.clientY
+        };
+
+        renderer.domElement.setPointerCapture(event.pointerId);
+        cameraTransition = null;
+
+        if (!event.shiftKey) {
+            followShip = false;
+            focusedShip = false;
+        }
+
+        clearCameraMomentum();
+        return;
+    }
+
     if (event.button !== 0) return;
 
     cameraPointerStart = {
@@ -242,9 +319,27 @@ renderer.domElement.addEventListener('pointerdown', function (event) {
         y: event.clientY
     };
     isCameraDragging = false;
-});
+}, true);
 
 renderer.domElement.addEventListener('pointermove', function (event) {
+    if (cameraRightPointer && event.pointerId === cameraRightPointer.id) {
+        event.preventDefault();
+
+        const movementX = event.clientX - cameraRightPointer.x;
+        const movementY = event.clientY - cameraRightPointer.y;
+
+        cameraRightPointer.x = event.clientX;
+        cameraRightPointer.y = event.clientY;
+
+        if (event.shiftKey) {
+            rotateCameraAroundTarget(movementX, movementY);
+        } else {
+            rotateCameraInPlace(movementX, movementY);
+        }
+
+        return;
+    }
+
     if (!cameraPointerStart) return;
 
     const dragDistance = Math.hypot(
@@ -261,14 +356,31 @@ renderer.domElement.addEventListener('pointermove', function (event) {
     focusedShip = false;
 });
 
-renderer.domElement.addEventListener('pointerup', function () {
+renderer.domElement.addEventListener('pointerup', function (event) {
+    if (cameraRightPointer && event.pointerId === cameraRightPointer.id) {
+        renderer.domElement.releasePointerCapture(event.pointerId);
+        cameraRightPointer = null;
+        clearCameraMomentum();
+        return;
+    }
+
     cameraPointerStart = null;
     isCameraDragging = false;
 });
 
-renderer.domElement.addEventListener('pointercancel', function () {
+renderer.domElement.addEventListener('pointercancel', function (event) {
+    if (cameraRightPointer && event.pointerId === cameraRightPointer.id) {
+        cameraRightPointer = null;
+        clearCameraMomentum();
+        return;
+    }
+
     cameraPointerStart = null;
     isCameraDragging = false;
+});
+
+renderer.domElement.addEventListener('contextmenu', function (event) {
+    event.preventDefault();
 });
 
 // -----------------------------
