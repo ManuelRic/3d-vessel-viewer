@@ -347,9 +347,9 @@ renderer.domElement.addEventListener('pointermove', function (event) {
         cameraRightPointer.y = event.clientY;
 
         if (event.shiftKey) {
-            rotateCameraAroundTarget(movementX, movementY);
-        } else {
             rotateCameraInPlace(movementX, movementY);
+        } else {
+            rotateCameraAroundTarget(movementX, movementY);
         }
 
         return;
