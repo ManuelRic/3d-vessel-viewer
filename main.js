@@ -220,9 +220,17 @@ const minCameraLookPhi = 0.05;
 const maxCameraLookPhi = Math.PI - 0.05;
 let cameraPointerStart = null;
 let cameraRightPointer = null;
+let shiftLeftPanPointer = null;
 let isCameraDragging = false;
 let suppressNextClick = false;
 let suppressClickTimeout = null;
+
+function setLeftMouseAction(action) {
+    controls.mouseButtons = {
+        ...controls.mouseButtons,
+        LEFT: action
+    };
+}
 
 function getCameraOrbitTarget() {
     if (focusedShip) {
@@ -265,7 +273,7 @@ function rotateCameraAroundTarget(movementX, movementY) {
 
     orbitSpherical.theta -= movementX * cameraLookSensitivity;
     orbitSpherical.phi = THREE.MathUtils.clamp(
-        orbitSpherical.phi + movementY * cameraLookSensitivity,
+        orbitSpherical.phi - movementY * cameraLookSensitivity,
         minCameraLookPhi,
         maxCameraLookPhi
     );
@@ -313,6 +321,13 @@ renderer.domElement.addEventListener('pointerdown', function (event) {
     }
 
     if (event.button !== 0) return;
+
+    if (event.shiftKey) {
+        shiftLeftPanPointer = event.pointerId;
+        setLeftMouseAction(THREE.MOUSE.ROTATE);
+    } else {
+        setLeftMouseAction(THREE.MOUSE.PAN);
+    }
 
     cameraPointerStart = {
         x: event.clientX,
@@ -364,6 +379,11 @@ renderer.domElement.addEventListener('pointerup', function (event) {
         return;
     }
 
+    if (shiftLeftPanPointer === event.pointerId) {
+        shiftLeftPanPointer = null;
+        setLeftMouseAction(THREE.MOUSE.PAN);
+    }
+
     cameraPointerStart = null;
     isCameraDragging = false;
 });
@@ -373,6 +393,11 @@ renderer.domElement.addEventListener('pointercancel', function (event) {
         cameraRightPointer = null;
         clearCameraMomentum();
         return;
+    }
+
+    if (shiftLeftPanPointer === event.pointerId) {
+        shiftLeftPanPointer = null;
+        setLeftMouseAction(THREE.MOUSE.PAN);
     }
 
     cameraPointerStart = null;
