@@ -112,10 +112,13 @@ let cameraTransition = null;
 
 controls.enableDamping = true;
 controls.dampingFactor = cameraDampingFactor;
+controls.enablePan = true;
+controls.panSpeed = 1.1;
+controls.screenSpacePanning = true;
 
-// Right click rotates
+// Left click drag pans around the map, right click drag rotates.
 controls.mouseButtons = {
-    LEFT: null,
+    LEFT: THREE.MOUSE.PAN,
     MIDDLE: THREE.MOUSE.DOLLY,
     RIGHT: THREE.MOUSE.ROTATE
 };
@@ -207,6 +210,66 @@ function getShipFocusOffset() {
 
     return offset.normalize().multiplyScalar(distance);
 }
+
+// -----------------------------
+// CAMERA DRAG
+// -----------------------------
+
+const cameraDragThreshold = 5;
+let cameraPointerStart = null;
+let isCameraDragging = false;
+let suppressNextClick = false;
+let suppressClickTimeout = null;
+
+function suppressClickAfterCameraDrag() {
+    suppressNextClick = true;
+
+    if (suppressClickTimeout) {
+        clearTimeout(suppressClickTimeout);
+    }
+
+    suppressClickTimeout = setTimeout(function () {
+        suppressNextClick = false;
+        suppressClickTimeout = null;
+    }, 250);
+}
+
+renderer.domElement.addEventListener('pointerdown', function (event) {
+    if (event.button !== 0) return;
+
+    cameraPointerStart = {
+        x: event.clientX,
+        y: event.clientY
+    };
+    isCameraDragging = false;
+});
+
+renderer.domElement.addEventListener('pointermove', function (event) {
+    if (!cameraPointerStart) return;
+
+    const dragDistance = Math.hypot(
+        event.clientX - cameraPointerStart.x,
+        event.clientY - cameraPointerStart.y
+    );
+
+    if (dragDistance < cameraDragThreshold) return;
+
+    isCameraDragging = true;
+    suppressClickAfterCameraDrag();
+    cameraTransition = null;
+    followShip = false;
+    focusedShip = false;
+});
+
+renderer.domElement.addEventListener('pointerup', function () {
+    cameraPointerStart = null;
+    isCameraDragging = false;
+});
+
+renderer.domElement.addEventListener('pointercancel', function () {
+    cameraPointerStart = null;
+    isCameraDragging = false;
+});
 
 // -----------------------------
 // WATER
@@ -652,6 +715,15 @@ function getShipCenter(shipModel) {
 // CLICK HANDLER
 // -----------------------------
 window.addEventListener('click', function (event) {
+    if (suppressNextClick) {
+        suppressNextClick = false;
+        if (suppressClickTimeout) {
+            clearTimeout(suppressClickTimeout);
+            suppressClickTimeout = null;
+        }
+        return;
+    }
+
     const clickedShip = getShipUnderMouse(event);
 
     if (!clickedShip) return;
@@ -744,6 +816,12 @@ function showVesselHoverLabel(ship, event) {
 }
 
 window.addEventListener('mousemove', function (event) {
+    if (isCameraDragging) {
+        clearHoverTimer();
+        hideVesselHoverLabel();
+        return;
+    }
+
     latestHoverEvent = event;
 
     const ship = getShipUnderMouse(event);
