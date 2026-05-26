@@ -106,5 +106,17 @@
     <aside id="boat-info-panel" aria-live="polite"></aside>
 
   <script type="module" src="./main.js"></script>
+  <script>
+    if (
+      'serviceWorker' in navigator &&
+      ['http:', 'https:'].includes(window.location.protocol)
+    ) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js').catch(function (error) {
+          console.warn('Service worker registration failed:', error);
+        });
+      });
+    }
+  </script>
 </body>
 </html>
