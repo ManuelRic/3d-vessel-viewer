@@ -1,16 +1,17 @@
 General:
-    right click hold + rotate => rotate camera
+    Right-click and drag to rotate the camera
+    Hold Shift and right-drag to rotate around the center
 
 On Vessel:
-    hover     => show name
-    click     => show boat detail card
-    dbl click => same as click + vessel focus
+    Hover over a vessel to show its name
+    Left-click a vessel to open its detail card
+    Double-click a vessel to focus and follow it
 
 On Empty:
-    click     => restore to default (close details + focused elements) ?
-    drag      => move camera around map
+    Click to restore the default view (close details + focused elements) ?
+    Drag to move the camera across the map
 
 On Trail:
-    hover     => show corresponding vessel name
-    click     => elevate trail y axis + highlight trail
-    dblclick  => same as click + dim other trails
+    Hover to show the corresponding vessel name
+    Click to elevate the trail y axis + highlight trail
+    Double-click to dim other trails

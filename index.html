@@ -29,9 +29,63 @@
         </div>
     </div>
     <div class="icon-container">
-        <button class="control-button" id="settings" type="button">
-            <svg class="control-button-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sliders-horizontal-icon lucide-sliders-horizontal"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></svg>        
-        </button>
+        <div class="control-menu-wrapper">
+            <button class="control-button" id="settings" type="button" aria-expanded="false" aria-controls="controls-menu">
+                <svg class="control-button-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+            <div class="controls-menu" id="controls-menu" aria-hidden="true">
+                <div class="controls-menu-header">
+                    <span class="controls-menu-title">Settings</span>
+                    <button class="controls-menu-close" id="close-controls-menu" type="button">
+                        <svg class="controls-menu-close-icon lucide lucide-x-icon lucide-x" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+                <button class="controls-menu-item" id="controls-menu-button" type="button" aria-expanded="false" aria-controls="controls-help">
+                    <svg class="controls-menu-icon lucide lucide-sliders-horizontal-icon lucide-sliders-horizontal" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></svg>
+                    <span>Controls</span>
+                </button>
+                <div class="controls-help" id="controls-help" aria-hidden="true">
+                    <div class="controls-help-row">
+                        <svg class="controls-help-icon lucide lucide-mouse-right-icon lucide-mouse-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7.318V10"/><path d="M19 10v5a7 7 0 0 1-14 0V9c0-3.527 2.608-6.515 6-7"/><circle cx="17" cy="4" r="2"/></svg>
+                        <span>Right-click and drag to rotate the camera</span>
+                    </div>
+                    <div class="controls-help-row">
+                        <span class="controls-help-combo">
+                            <svg class="controls-help-icon lucide lucide-mouse-right-icon lucide-mouse-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7.318V10"/><path d="M19 10v5a7 7 0 0 1-14 0V9c0-3.527 2.608-6.515 6-7"/><circle cx="17" cy="4" r="2"/></svg>
+                            <span class="control-key">Shift</span>
+                        </span>
+                        <span>Hold Shift and right-drag to rotate around the center</span>
+                    </div>
+                    <div class="controls-help-row">
+                        <svg class="controls-help-icon lucide lucide-mouse-icon lucide-mouse" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="7"/><path d="M12 6v4"/></svg>
+                        <span>Hover over a vessel to show its name</span>
+                    </div>
+                    <div class="controls-help-row">
+                        <svg class="controls-help-icon lucide lucide-mouse-left-icon lucide-mouse-left" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7.318V10"/><path d="M5 10v5a7 7 0 0 0 14 0V9c0-3.527-2.608-6.515-6-7"/><circle cx="7" cy="4" r="2"/></svg>
+                        <span>Left-click a vessel to open its detail card</span>
+                    </div>
+                    <div class="controls-help-row">
+                        <span class="controls-help-combo">
+                            <svg class="controls-help-icon lucide lucide-mouse-left-icon lucide-mouse-left" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7.318V10"/><path d="M5 10v5a7 7 0 0 0 14 0V9c0-3.527-2.608-6.515-6-7"/><circle cx="7" cy="4" r="2"/></svg>
+                            <span class="control-key">x2</span>
+                        </span>
+                        <span>Double-click a vessel to focus and follow it</span>
+                    </div>
+                    <div class="controls-help-row">
+                        <svg class="controls-help-icon lucide lucide-hand-grab-icon lucide-hand-grab" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11.5V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v1.4"/><path d="M14 10V8a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path d="M10 9.9V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v5"/><path d="M6 14a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-4a8 8 0 0 1-8-8 2 2 0 1 1 4 0"/></svg>
+                        <span>Drag to move the camera across the map</span>
+                    </div>
+                </div>
+                <button class="controls-menu-item" id="toggle-water-effects" type="button" aria-pressed="true">
+                    <svg class="controls-menu-icon lucide lucide-waves-horizontal-icon lucide-waves-horizontal" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12q2.5 2 5 0t5 0 5 0 5 0"/><path d="M2 19q2.5 2 5 0t5 0 5 0 5 0"/><path d="M2 5q2.5 2 5 0t5 0 5 0 5 0"/></svg>
+                    <span>Water texture</span>
+                </button>
+                <button class="controls-menu-item" id="toggle-light-direction" type="button" aria-pressed="true">
+                    <svg class="controls-menu-icon lucide lucide-sun-medium-icon lucide-sun-medium" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v1"/><path d="M12 20v1"/><path d="M3 12h1"/><path d="M20 12h1"/><path d="m18.364 5.636-.707.707"/><path d="m6.343 17.657-.707.707"/><path d="m5.636 5.636.707.707"/><path d="m17.657 17.657.707.707"/></svg>
+                    <span>Light direction</span>
+                </button>
+            </div>
+        </div>
         <button class="control-button"  id="top-view-button" type="button">
             <svg class="control-button-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-land-plot-icon lucide-land-plot"><path d="m12 8 6-3-6-3v10"/><path d="m8 11.99-5.5 3.14a1 1 0 0 0 0 1.74l8.5 4.86a2 2 0 0 0 2 0l8.5-4.86a1 1 0 0 0 0-1.74L16 12"/><path d="m6.49 12.85 11.02 6.3"/><path d="M17.51 12.85 6.5 19.15"/></svg>        
         </button>

@@ -97,7 +97,16 @@ const sunDirection = sunLight.position.clone().normalize();
 
 const topViewButton = document.getElementById('top-view-button');
 const toggleTrailButton = document.getElementById('toggle-trail');
+const settingsButton = document.getElementById('settings');
+const controlsMenuButton = document.getElementById('controls-menu-button');
+const controlsMenu = document.getElementById('controls-menu');
+const controlsHelp = document.getElementById('controls-help');
+const closeControlsMenuButton = document.getElementById('close-controls-menu');
+const toggleWaterEffectsButton = document.getElementById('toggle-water-effects');
+const toggleLightDirectionButton = document.getElementById('toggle-light-direction');
 let trailsVisible = true;
+let waterEffectsEnabled = true;
+let lightDirectionEnabled = true;
 
 // -----------------------------
 // CONTROLS
@@ -116,7 +125,7 @@ controls.enablePan = true;
 controls.panSpeed = 1.1;
 controls.screenSpacePanning = true;
 
-// Left click drag pans around the map, right click drag looks around in place.
+// Left click drag pans around the map, right click drag orbits the selected vessel.
 controls.mouseButtons = {
     LEFT: THREE.MOUSE.PAN,
     MIDDLE: THREE.MOUSE.DOLLY
@@ -129,6 +138,15 @@ function clearCameraMomentum() {
     controls.enableDamping = false;
     controls.update();
     controls.enableDamping = true;
+    controls.dampingFactor = cameraDampingFactor;
+}
+
+function updateControlsWithoutDamping() {
+    const wasDampingEnabled = controls.enableDamping;
+
+    controls.enableDamping = false;
+    controls.update();
+    controls.enableDamping = wasDampingEnabled;
     controls.dampingFactor = cameraDampingFactor;
 }
 
@@ -216,11 +234,13 @@ function getShipFocusOffset() {
 
 const cameraDragThreshold = 5;
 const cameraLookSensitivity = 0.005;
+const shiftRightLookSmoothing = 0.22;
 const minCameraLookPhi = 0.05;
 const maxCameraLookPhi = Math.PI - 0.05;
 let cameraPointerStart = null;
 let cameraRightPointer = null;
 let shiftLeftPanPointer = null;
+let pendingShiftRightLookDelta = new THREE.Vector2();
 let isCameraDragging = false;
 let suppressNextClick = false;
 let suppressClickTimeout = null;
@@ -234,10 +254,30 @@ function setLeftMouseAction(action) {
 
 function getCameraOrbitTarget() {
     if (focusedShip) {
-        return getShipCenter(focusedShip.model);
+        return getShipCenter(focusedShip);
     }
 
     return defaultCameraTarget.clone();
+}
+
+function queueSmoothCameraLook(movementX, movementY) {
+    pendingShiftRightLookDelta.x += movementX;
+    pendingShiftRightLookDelta.y += movementY;
+}
+
+function updateSmoothCameraLook() {
+    if (pendingShiftRightLookDelta.lengthSq() < 0.01) {
+        pendingShiftRightLookDelta.set(0, 0);
+        return;
+    }
+
+    const movementX = pendingShiftRightLookDelta.x * shiftRightLookSmoothing;
+    const movementY = pendingShiftRightLookDelta.y * shiftRightLookSmoothing;
+
+    pendingShiftRightLookDelta.x -= movementX;
+    pendingShiftRightLookDelta.y -= movementY;
+
+    rotateCameraInPlace(movementX, movementY);
 }
 
 function rotateCameraInPlace(movementX, movementY) {
@@ -259,7 +299,7 @@ function rotateCameraInPlace(movementX, movementY) {
 
     lookDirection.setFromSpherical(lookSpherical);
     controls.target.copy(camera.position).add(lookDirection);
-    controls.update();
+    updateControlsWithoutDamping();
 }
 
 function rotateCameraAroundTarget(movementX, movementY) {
@@ -281,7 +321,7 @@ function rotateCameraAroundTarget(movementX, movementY) {
     cameraOffset.setFromSpherical(orbitSpherical);
     camera.position.copy(orbitTarget).add(cameraOffset);
     controls.target.copy(orbitTarget);
-    controls.update();
+    updateControlsWithoutDamping();
 }
 
 function suppressClickAfterCameraDrag() {
@@ -307,11 +347,13 @@ renderer.domElement.addEventListener('pointerdown', function (event) {
             x: event.clientX,
             y: event.clientY
         };
+        pendingShiftRightLookDelta.set(0, 0);
 
         renderer.domElement.setPointerCapture(event.pointerId);
         cameraTransition = null;
+        setCanvasCursor('grabbing');
 
-        if (!event.shiftKey) {
+        if (event.shiftKey) {
             followShip = false;
             focusedShip = false;
         }
@@ -347,7 +389,7 @@ renderer.domElement.addEventListener('pointermove', function (event) {
         cameraRightPointer.y = event.clientY;
 
         if (event.shiftKey) {
-            rotateCameraInPlace(movementX, movementY);
+            queueSmoothCameraLook(movementX, movementY);
         } else {
             rotateCameraAroundTarget(movementX, movementY);
         }
@@ -365,6 +407,7 @@ renderer.domElement.addEventListener('pointermove', function (event) {
     if (dragDistance < cameraDragThreshold) return;
 
     isCameraDragging = true;
+    setCanvasCursor('grabbing');
     suppressClickAfterCameraDrag();
     cameraTransition = null;
     followShip = false;
@@ -375,6 +418,7 @@ renderer.domElement.addEventListener('pointerup', function (event) {
     if (cameraRightPointer && event.pointerId === cameraRightPointer.id) {
         renderer.domElement.releasePointerCapture(event.pointerId);
         cameraRightPointer = null;
+        setCanvasCursor('grab');
         clearCameraMomentum();
         return;
     }
@@ -386,11 +430,13 @@ renderer.domElement.addEventListener('pointerup', function (event) {
 
     cameraPointerStart = null;
     isCameraDragging = false;
+    setCanvasCursor('grab');
 });
 
 renderer.domElement.addEventListener('pointercancel', function (event) {
     if (cameraRightPointer && event.pointerId === cameraRightPointer.id) {
         cameraRightPointer = null;
+        setCanvasCursor('grab');
         clearCameraMomentum();
         return;
     }
@@ -402,6 +448,7 @@ renderer.domElement.addEventListener('pointercancel', function (event) {
 
     cameraPointerStart = null;
     isCameraDragging = false;
+    setCanvasCursor('grab');
 });
 
 renderer.domElement.addEventListener('contextmenu', function (event) {
@@ -416,6 +463,11 @@ const waterHeight = 3000;
 const waterGeometry = new THREE.PlaneGeometry(waterWidth, waterHeight);
 const darkWaterColor = new THREE.Color(0x02070c);
 const litWaterColor = new THREE.Color(0x1f4f7a);
+const plainWaterMaterial = new THREE.MeshStandardMaterial({
+    color: litWaterColor,
+    roughness: 0.92,
+    metalness: 0
+});
 
 const water = new Water(
     waterGeometry,
@@ -437,11 +489,26 @@ const water = new Water(
     }
 );
 
+const waterEffectsMaterial = water.material;
+const plainWater = new THREE.Mesh(waterGeometry, plainWaterMaterial);
+
 water.rotation.x = -Math.PI / 2;
 water.position.set(0, 0.5, 0);
 scene.add(water);
 
+plainWater.rotation.x = -Math.PI / 2;
+plainWater.position.copy(water.position);
+plainWater.visible = false;
+scene.add(plainWater);
+
 function updateWaterSunFromLight() {
+    if (!waterEffectsEnabled) {
+        plainWaterMaterial.color
+            .copy(darkWaterColor)
+            .lerp(litWaterColor, lightDirectionEnabled ? 1 : 0.45);
+        return;
+    }
+
     const lightLevel = THREE.MathUtils.clamp(sunLight.intensity / 1.5, 0, 1);
 
     water.material.uniforms['sunDirection'].value
@@ -458,6 +525,92 @@ function updateWaterSunFromLight() {
 }
 
 updateWaterSunFromLight();
+
+function updateWaterEffectsButton() {
+    toggleWaterEffectsButton.setAttribute(
+        'aria-pressed',
+        String(waterEffectsEnabled)
+    );
+    toggleWaterEffectsButton.classList.toggle('is-off', !waterEffectsEnabled);
+}
+
+function updateLightDirectionButton() {
+    toggleLightDirectionButton.setAttribute(
+        'aria-pressed',
+        String(lightDirectionEnabled)
+    );
+    toggleLightDirectionButton.classList.toggle(
+        'is-off',
+        !lightDirectionEnabled
+    );
+}
+
+function setWaterEffectsEnabled(enabled) {
+    waterEffectsEnabled = enabled;
+    water.visible = waterEffectsEnabled;
+    plainWater.visible = !waterEffectsEnabled;
+    updateWaterSunFromLight();
+    updateWaterEffectsButton();
+}
+
+function setLightDirectionEnabled(enabled) {
+    lightDirectionEnabled = enabled;
+    sunLight.visible = lightDirectionEnabled;
+    sunLight.intensity = lightDirectionEnabled ? light : 0;
+    ambientLight.intensity = lightDirectionEnabled ? light / 8 : light * 0.8;
+    updateWaterSunFromLight();
+    updateLightDirectionButton();
+}
+
+function setControlsMenuOpen(isOpen) {
+    controlsMenu.classList.toggle('is-open', isOpen);
+    controlsMenu.setAttribute('aria-hidden', String(!isOpen));
+    settingsButton.setAttribute('aria-expanded', String(isOpen));
+
+    if (!isOpen) {
+        controlsHelp.classList.remove('is-open');
+        controlsHelp.setAttribute('aria-hidden', 'true');
+        controlsMenuButton.setAttribute('aria-expanded', 'false');
+    }
+}
+
+settingsButton.addEventListener('click', function (event) {
+    event.stopPropagation();
+    setControlsMenuOpen(!controlsMenu.classList.contains('is-open'));
+});
+
+controlsMenu.addEventListener('click', function (event) {
+    event.stopPropagation();
+});
+
+controlsMenuButton.addEventListener('click', function () {
+    const isOpen = !controlsHelp.classList.contains('is-open');
+
+    controlsHelp.classList.toggle('is-open', isOpen);
+    controlsHelp.setAttribute('aria-hidden', String(!isOpen));
+    controlsMenuButton.setAttribute('aria-expanded', String(isOpen));
+});
+
+closeControlsMenuButton.addEventListener('click', function () {
+    setControlsMenuOpen(false);
+});
+
+toggleWaterEffectsButton.addEventListener('click', function () {
+    setWaterEffectsEnabled(!waterEffectsEnabled);
+});
+
+toggleLightDirectionButton.addEventListener('click', function () {
+    setLightDirectionEnabled(!lightDirectionEnabled);
+});
+
+window.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+        setControlsMenuOpen(false);
+    }
+});
+
+updateWaterEffectsButton();
+updateLightDirectionButton();
 // -----------------------------
 // BOAT
 // -----------------------------
@@ -514,6 +667,14 @@ function getShipCollisionRadius(shipModel) {
     box.getSize(size);
 
     return Math.sqrt(size.x * size.x + size.z * size.z) * 0.5;
+}
+
+function getShipCenterOffset(shipModel) {
+    const box = new THREE.Box3().setFromObject(shipModel);
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+
+    return shipModel.worldToLocal(center.clone());
 }
 
 function getShipTrailOffset(shipModel) {
@@ -765,8 +926,10 @@ shipsData.forEach(function (shipData) {
             );
 
             scene.add(shipModel);
+            shipModel.updateMatrixWorld(true);
 
             const collisionRadius = getShipCollisionRadius(shipModel);
+            const centerOffset = getShipCenterOffset(shipModel);
             const trailOffset =
                 getShipTrailOffset(shipModel) *
                 (shipData.trailOffsetMultiplier ?? 1);
@@ -783,6 +946,7 @@ shipsData.forEach(function (shipData) {
                 turnSpeed: shipData.turnSpeed,
                 forwardOffset: shipData.forwardOffset,
                 scale: shipScale,
+                centerOffset: centerOffset,
                 trailPositions: [],
                 trailTimes: [],
                 trailLine: null,
@@ -841,8 +1005,12 @@ function getShipUnderMouse(event) {
 // BOAT CENTER
 // -----------------------------
 
-function getShipCenter(shipModel) {
-    const box = new THREE.Box3().setFromObject(shipModel);
+function getShipCenter(ship) {
+    if (ship.centerOffset) {
+        return ship.model.localToWorld(ship.centerOffset.clone());
+    }
+
+    const box = new THREE.Box3().setFromObject(ship.model);
     const center = new THREE.Vector3();
     box.getCenter(center);
     return center;
@@ -907,7 +1075,7 @@ window.addEventListener('dblclick', function (event) {
     selectedShip = clickedShip;
     followShip = true;
 
-    const shipCenter = getShipCenter(clickedShip.model);
+    const shipCenter = getShipCenter(clickedShip);
 
     followOffset.copy(getShipFocusOffset());
 
@@ -929,6 +1097,10 @@ const vesselHoverDelay = 500;
 let hoveredShip = null;
 let hoverTimeout = null;
 let latestHoverEvent = null;
+
+function setCanvasCursor(cursor) {
+    renderer.domElement.style.cursor = cursor;
+}
 
 function clearHoverTimer() {
     if (!hoverTimeout) return;
@@ -952,8 +1124,9 @@ function showVesselHoverLabel(ship, event) {
     vesselHoverLabel.style.display = 'block';
 }
 
-window.addEventListener('mousemove', function (event) {
+function updateVesselHover(event) {
     if (isCameraDragging) {
+        setCanvasCursor('grabbing');
         clearHoverTimer();
         hideVesselHoverLabel();
         return;
@@ -964,11 +1137,14 @@ window.addEventListener('mousemove', function (event) {
     const ship = getShipUnderMouse(event);
 
     if (!ship) {
+        setCanvasCursor('grab');
         hoveredShip = null;
         clearHoverTimer();
         hideVesselHoverLabel();
         return;
     }
+
+    setCanvasCursor('pointer');
 
     if (ship === selectedShip) {
         hoveredShip = null;
@@ -992,6 +1168,18 @@ window.addEventListener('mousemove', function (event) {
     if (vesselHoverLabel && vesselHoverLabel.style.display === 'block') {
         showVesselHoverLabel(ship, event);
     }
+}
+
+window.addEventListener('mousemove', function (event) {
+    updateVesselHover(event);
+});
+
+window.addEventListener('mouseleave', function () {
+    setCanvasCursor('grab');
+    hoveredShip = null;
+    latestHoverEvent = null;
+    clearHoverTimer();
+    hideVesselHoverLabel();
 });
 
 // -----------------------------
@@ -1169,7 +1357,11 @@ function animate() {
     requestAnimationFrame(animate);
 
     updateWaterSunFromLight();
-    water.material.uniforms['time'].value += 1.0 / 60.0;
+
+    if (waterEffectsEnabled) {
+        waterEffectsMaterial.uniforms['time'].value += 1.0 / 60.0;
+    }
+
     trailSimulationTime += 1.0 / 60.0;
 
     const now = performance.now() / 1000;
@@ -1186,8 +1378,12 @@ function animate() {
 
     const isCameraTransitioning = updateCameraTransition(now);
 
+    if (!isCameraTransitioning) {
+        updateSmoothCameraLook();
+    }
+
     if (focusedShip && followShip && !isCameraTransitioning) {
-        const shipCenter = getShipCenter(focusedShip.model);
+        const shipCenter = getShipCenter(focusedShip);
 
         followOffset.copy(camera.position).sub(controls.target);
 
@@ -1200,6 +1396,11 @@ function animate() {
     }
 
     controls.update();
+
+    if (latestHoverEvent) {
+        updateVesselHover(latestHoverEvent);
+    }
+
     renderer.render(scene, camera);
 }
 

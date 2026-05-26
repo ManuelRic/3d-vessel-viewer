@@ -1,4 +1,6 @@
 Now:    
+    IMPORT WATER
+    no smooth on camera shift right click rotate
     ✅ add vessel name on hover
     remove lower opacity on trail off button
     remove water texture since the waves will be created by gerstner waves
