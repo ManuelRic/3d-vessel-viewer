@@ -149,14 +149,43 @@ const searchButton = document.getElementById('search-button');
 const searchMenu = document.getElementById('search-menu');
 const closeSearchMenuButton = document.getElementById('close-search-menu');
 const vesselSearchInput = document.getElementById('vessel-search-input');
+const vesselSearchClearButton = document.getElementById('vessel-search-clear');
 const vesselSearchResults = document.getElementById('vessel-search-results');
+const searchOptionsButton = document.getElementById('search-options-button');
+const searchOptionsPanel = document.getElementById('search-options-panel');
+const searchSortAlphaAscButton = document.getElementById('search-sort-alpha-asc');
+const searchSortAlphaDescButton = document.getElementById('search-sort-alpha-desc');
+const searchSortVisibleFirstButton = document.getElementById('search-sort-visible-first');
+const searchSortHiddenFirstButton = document.getElementById('search-sort-hidden-first');
+const resetSearchSettingsButton = document.getElementById('reset-search-settings');
+const viewMenuButton = document.getElementById('view-menu-button');
+const viewMenu = document.getElementById('view-menu');
+const closeViewMenuButton = document.getElementById('close-view-menu');
+const viewBackButton = document.getElementById('view-back-button');
+const viewMenuTitle = document.querySelector('.view-menu-title');
+const viewMainView = document.getElementById('view-main-view');
+const viewFilterView = document.getElementById('view-filter-view');
+const viewFilterTypeView = document.getElementById('view-filter-type-view');
+const viewFilterCompanyView = document.getElementById('view-filter-company-view');
+const viewAdvancedSettingsView = document.getElementById('view-advanced-settings-view');
+const filterMenuButton = document.getElementById('filter-menu-button');
+const advancedViewSettingsButton = document.getElementById('advanced-view-settings-button');
+const filterTypeButton = document.getElementById('filter-type-button');
+const filterCompanyButton = document.getElementById('filter-company-button');
+const filterTypeOptions = document.getElementById('filter-type-options');
+const filterCompanyOptions = document.getElementById('filter-company-options');
+const filterTypeSummary = document.getElementById('filter-type-summary');
+const filterCompanySummary = document.getElementById('filter-company-summary');
+const resetFilterSettingsButton = document.getElementById('reset-filter-settings');
+const resetAdvancedViewSettingsButton = document.getElementById('reset-advanced-view-settings');
+const toggleThemeButton = document.getElementById('toggle-theme');
+const themeIconSlot = document.getElementById('theme-icon-slot');
+const themeModeLabel = document.getElementById('theme-mode-label');
 const settingsBackButton = document.getElementById('settings-back-button');
 const settingsMenuTitle = document.querySelector('.controls-menu-title');
 const settingsMainView = document.getElementById('settings-main-view');
 const settingsControlsView = document.getElementById('settings-controls-view');
-const settingsVisualizationView = document.getElementById('settings-visualization-view');
 const controlsMenuButton = document.getElementById('controls-menu-button');
-const visualizationMenuButton = document.getElementById('visualization-menu-button');
 const controlsMenu = document.getElementById('controls-menu');
 const closeControlsMenuButton = document.getElementById('close-controls-menu');
 const toggleWaterEffectsButton = document.getElementById('toggle-water-effects');
@@ -170,6 +199,7 @@ let trailsVisible = true;
 let waterEffectsEnabled = true;
 let lightDirectionEnabled = true;
 let compassVisible = true;
+let searchSortMode = 'alpha-asc';
 
 // -----------------------------
 // COMPASS
@@ -249,6 +279,7 @@ function setSearchMenuOpen(isOpen) {
 
     if (isOpen) {
         setControlsMenuOpen(false);
+        setViewMenuOpen(false);
     }
 
     searchMenu.classList.toggle('is-open', isOpen);
@@ -257,13 +288,68 @@ function setSearchMenuOpen(isOpen) {
 
     if (isOpen) {
         renderSearchResults();
+        setSearchOptionsOpen(false);
         requestAnimationFrame(function () {
             vesselSearchInput?.focus();
         });
     }
 }
 
+function setViewMenuOpen(isOpen) {
+    if (!viewMenu || !viewMenuButton) return;
+
+    if (isOpen) {
+        setControlsMenuOpen(false);
+        setSearchMenuOpen(false);
+    }
+
+    viewMenu.classList.toggle('is-open', isOpen);
+    viewMenu.setAttribute('aria-hidden', String(!isOpen));
+    viewMenuButton.setAttribute('aria-expanded', String(isOpen));
+
+    if (!isOpen) {
+        setViewMenuView('main');
+    }
+}
+
+function setViewMenuView(viewName) {
+    const isMainView = viewName === 'main';
+
+    viewMenu?.classList.toggle('is-subview', !isMainView);
+    viewMainView?.classList.toggle('is-active', isMainView);
+    viewFilterView?.classList.toggle('is-active', viewName === 'filter');
+    viewFilterTypeView?.classList.toggle(
+        'is-active',
+        viewName === 'filter-type'
+    );
+    viewFilterCompanyView?.classList.toggle(
+        'is-active',
+        viewName === 'filter-company'
+    );
+    viewAdvancedSettingsView?.classList.toggle(
+        'is-active',
+        viewName === 'advanced-settings'
+    );
+
+    if (viewBackButton) {
+        viewBackButton.setAttribute('aria-hidden', String(isMainView));
+    }
+
+    if (viewMenuTitle) {
+        viewMenuTitle.textContent =
+            viewName === 'filter-type' ? 'Type' :
+            viewName === 'filter-company' ? 'Company' :
+            viewName === 'advanced-settings' ? 'Advanced view settings' :
+            viewName === 'filter' ? 'Filter' :
+            'View';
+    }
+}
+
 function focusShipFromSearch(ship) {
+    if (!ship.isFilteredVisible) {
+        setShipSearchVisibility(ship, true);
+    }
+
     clearTopViewRestoreState();
 
     focusedShip = ship;
@@ -286,32 +372,129 @@ function focusShipFromSearch(ship) {
     setSearchMenuOpen(false);
 }
 
+const visibleSearchIcon = '<svg class="search-result-toggle-icon lucide lucide-video-icon lucide-video" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>';
+const hiddenSearchIcon = '<svg class="search-result-toggle-icon lucide lucide-video-off-icon lucide-video-off" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.66 6H14a2 2 0 0 1 2 2v2.5l5.248-3.062A.5.5 0 0 1 22 7.87v8.196"/><path d="M16 16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2"/><path d="m2 2 20 20"/></svg>';
+
 function createSearchResult(ship) {
+    const row = document.createElement('div');
     const button = document.createElement('button');
+    const visibilityButton = document.createElement('button');
     const name = document.createElement('span');
     const meta = document.createElement('span');
+    const isVisible = ship.isFilteredVisible !== false;
 
+    row.className = 'search-result-row';
+    row.classList.toggle('is-hidden-vessel', !isVisible);
     button.className = 'search-result-item';
     button.type = 'button';
+    visibilityButton.className = 'search-result-toggle';
+    visibilityButton.type = 'button';
+    visibilityButton.setAttribute(
+        'aria-label',
+        isVisible ? `Hide ${ship.details.name}` : `Show ${ship.details.name}`
+    );
+    visibilityButton.innerHTML = isVisible ? visibleSearchIcon : hiddenSearchIcon;
 
     name.className = 'search-result-name';
     name.textContent = ship.details.name;
 
     meta.className = 'search-result-meta';
-    meta.textContent = `${ship.details.type} - IMO ${ship.details.imo}`;
+    meta.textContent = `${ship.details.category ?? ship.details.type} - ${ship.details.company ?? 'Unknown'}`;
 
     button.append(name, meta);
     button.addEventListener('click', function () {
         focusShipFromSearch(ship);
     });
+    visibilityButton.addEventListener('click', function () {
+        setShipSearchVisibility(ship, !isVisible);
+    });
 
-    return button;
+    row.append(button, visibilityButton);
+
+    return row;
+}
+
+function isShipVisibleByFilters(ship) {
+    const type = ship.details.category ?? ship.details.type;
+    const company = ship.details.company ?? 'Unknown';
+
+    return activeTypeFilters.has(type) && activeCompanyFilters.has(company);
+}
+
+function isShipVisible(ship) {
+    if (manuallyShownShipIds.has(ship.details.id)) return true;
+    if (manuallyHiddenShipIds.has(ship.details.id)) return false;
+
+    return isShipVisibleByFilters(ship);
+}
+
+function setShipSearchVisibility(ship, isVisible) {
+    if (isVisible) {
+        manuallyHiddenShipIds.delete(ship.details.id);
+        manuallyShownShipIds.add(ship.details.id);
+    } else {
+        manuallyShownShipIds.delete(ship.details.id);
+        manuallyHiddenShipIds.add(ship.details.id);
+    }
+
+    applyShipFilters();
+}
+
+function updateSearchSortButtons() {
+    searchSortAlphaAscButton?.classList.toggle(
+        'is-active',
+        searchSortMode === 'alpha-asc'
+    );
+    searchSortAlphaDescButton?.classList.toggle(
+        'is-active',
+        searchSortMode === 'alpha-desc'
+    );
+    searchSortVisibleFirstButton?.classList.toggle(
+        'is-active',
+        searchSortMode === 'visible-first'
+    );
+    searchSortHiddenFirstButton?.classList.toggle(
+        'is-active',
+        searchSortMode === 'hidden-first'
+    );
+}
+
+function setSearchOptionsOpen(isOpen) {
+    if (!searchOptionsButton || !searchOptionsPanel) return;
+
+    searchOptionsPanel.hidden = !isOpen;
+    searchOptionsButton.classList.toggle('is-active', isOpen);
+    searchOptionsButton.setAttribute('aria-expanded', String(isOpen));
+}
+
+function setSearchSortMode(mode) {
+    searchSortMode = mode;
+    updateSearchSortButtons();
+    renderSearchResults();
+}
+
+function resetSearchSettings() {
+    if (vesselSearchInput) {
+        vesselSearchInput.value = '';
+    }
+
+    manuallyShownShipIds.clear();
+    manuallyHiddenShipIds.clear();
+    setSearchSortMode('alpha-asc');
+    setSearchOptionsOpen(false);
+    applyShipFilters();
+    vesselSearchInput?.focus();
 }
 
 function renderSearchResults() {
     if (!vesselSearchResults) return;
 
     const query = vesselSearchInput?.value.trim().toLowerCase() ?? '';
+
+    if (vesselSearchClearButton) {
+        vesselSearchClearButton.hidden = query.length === 0;
+    }
+
     const matches = ships
         .filter(function (ship) {
             if (!query) return true;
@@ -319,7 +502,19 @@ function renderSearchResults() {
             return ship.details.name.toLowerCase().includes(query);
         })
         .sort(function (a, b) {
-            return a.details.name.localeCompare(b.details.name);
+            const nameSort = a.details.name.localeCompare(b.details.name);
+
+            if (searchSortMode === 'alpha-desc') return -nameSort;
+            if (searchSortMode === 'alpha-asc') return nameSort;
+
+            const aVisible = a.isFilteredVisible !== false;
+            const bVisible = b.isFilteredVisible !== false;
+
+            if (aVisible === bVisible) return nameSort;
+
+            return searchSortMode === 'visible-first' ?
+                (aVisible ? -1 : 1) :
+                (aVisible ? 1 : -1);
         });
 
     if (matches.length === 0) {
@@ -339,6 +534,160 @@ function renderSearchResults() {
             return createSearchResult(ship);
         })
     );
+}
+
+function getSortedUniqueShipValues(getValue) {
+    return [...new Set(ships.map(getValue))]
+        .filter(Boolean)
+        .sort(function (a, b) {
+            return a.localeCompare(b);
+        });
+}
+
+function createFilterOption(value, activeSet) {
+    const label = document.createElement('label');
+    const checkbox = document.createElement('input');
+    const text = document.createElement('span');
+
+    label.className = 'filter-option';
+    checkbox.type = 'checkbox';
+    checkbox.checked = activeSet.has(value);
+    text.textContent = value;
+
+    checkbox.addEventListener('change', function () {
+        if (checkbox.checked) {
+            activeSet.add(value);
+        } else {
+            activeSet.delete(value);
+        }
+
+        updateFilterSummaries();
+        applyShipFilters();
+    });
+
+    label.append(checkbox, text);
+
+    return label;
+}
+
+function getFilterSummary(activeCount, totalCount) {
+    return `${activeCount}/${totalCount}`;
+}
+
+function updateFilterSummaries() {
+    const types = getSortedUniqueShipValues(function (ship) {
+        return ship.details.category ?? ship.details.type;
+    });
+    const companies = getSortedUniqueShipValues(function (ship) {
+        return ship.details.company ?? 'Unknown';
+    });
+
+    if (filterTypeSummary) {
+        filterTypeSummary.textContent = getFilterSummary(
+            activeTypeFilters.size,
+            types.length
+        );
+    }
+
+    if (filterCompanySummary) {
+        filterCompanySummary.textContent = getFilterSummary(
+            activeCompanyFilters.size,
+            companies.length
+        );
+    }
+}
+
+function renderFilterOptions() {
+    if (!filterTypeOptions || !filterCompanyOptions) return;
+
+    const types = getSortedUniqueShipValues(function (ship) {
+        return ship.details.category ?? ship.details.type;
+    });
+    const companies = getSortedUniqueShipValues(function (ship) {
+        return ship.details.company ?? 'Unknown';
+    });
+
+    types.forEach(function (type) {
+        if (!knownTypeFilters.has(type)) {
+            knownTypeFilters.add(type);
+            activeTypeFilters.add(type);
+        }
+    });
+    companies.forEach(function (company) {
+        if (!knownCompanyFilters.has(company)) {
+            knownCompanyFilters.add(company);
+            activeCompanyFilters.add(company);
+        }
+    });
+
+    filterTypeOptions.replaceChildren(
+        ...types.map(function (type) {
+            return createFilterOption(type, activeTypeFilters);
+        })
+    );
+    filterCompanyOptions.replaceChildren(
+        ...companies.map(function (company) {
+            return createFilterOption(company, activeCompanyFilters);
+        })
+    );
+
+    updateFilterSummaries();
+}
+
+function applyShipFilters() {
+    ships.forEach(function (ship) {
+        const isVisible = isShipVisible(ship);
+
+        ship.isFilteredVisible = isVisible;
+        ship.model.visible = isVisible;
+        setShipTrailVisibility(ship, trailsVisible && isVisible);
+    });
+
+    shipModels.length = 0;
+    ships.forEach(function (ship) {
+        if (ship.isFilteredVisible) {
+            shipModels.push(ship.model);
+        }
+    });
+
+    if (selectedShip && !selectedShip.isFilteredVisible) {
+        selectedShip = null;
+        hideBoatDetails();
+    }
+
+    if (focusedShip && !focusedShip.isFilteredVisible) {
+        focusedShip = false;
+        followShip = false;
+    }
+
+    renderSearchResults();
+    clearHoverTimer();
+    hideVesselHoverLabel();
+}
+
+function resetFilterSettings() {
+    activeTypeFilters.clear();
+    knownTypeFilters.forEach(function (type) {
+        activeTypeFilters.add(type);
+    });
+
+    activeCompanyFilters.clear();
+    knownCompanyFilters.forEach(function (company) {
+        activeCompanyFilters.add(company);
+    });
+
+    manuallyShownShipIds.clear();
+    manuallyHiddenShipIds.clear();
+
+    renderFilterOptions();
+    applyShipFilters();
+}
+
+function resetAdvancedViewSettings() {
+    setWaterEffectsEnabled(true);
+    setLightDirectionEnabled(true);
+    setCompassVisible(true);
+    setTrailsVisible(true);
 }
 
 // -----------------------------
@@ -884,16 +1233,38 @@ function setCompassVisible(isVisible) {
     updateCompassButton();
 }
 
+const lightThemeIcon = '<svg class="controls-menu-icon lucide lucide-sun-icon lucide-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
+const darkThemeIcon = '<svg class="controls-menu-icon lucide lucide-moon-icon lucide-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>';
+
+function updateThemeButton() {
+    if (!toggleThemeButton) return;
+
+    const isLightTheme = document.body.classList.contains('light-theme');
+    const nextThemeLabel = isLightTheme ? 'Dark' : 'Light';
+
+    toggleThemeButton.setAttribute('aria-pressed', String(isLightTheme));
+
+    if (themeModeLabel) {
+        themeModeLabel.textContent = nextThemeLabel;
+    }
+
+    if (themeIconSlot) {
+        themeIconSlot.innerHTML = isLightTheme ? darkThemeIcon : lightThemeIcon;
+    }
+}
+
+function setLightTheme(isLightTheme) {
+    document.body.classList.toggle('light-theme', isLightTheme);
+    localStorage.setItem('port-ui-theme', isLightTheme ? 'light' : 'dark');
+    updateThemeButton();
+}
+
 function setSettingsView(viewName) {
     const isMainView = viewName === 'main';
 
     controlsMenu?.classList.toggle('is-subview', !isMainView);
     settingsMainView?.classList.toggle('is-active', isMainView);
     settingsControlsView?.classList.toggle('is-active', viewName === 'controls');
-    settingsVisualizationView?.classList.toggle(
-        'is-active',
-        viewName === 'visualization'
-    );
 
     if (settingsBackButton) {
         settingsBackButton.setAttribute('aria-hidden', String(isMainView));
@@ -902,7 +1273,6 @@ function setSettingsView(viewName) {
     if (settingsMenuTitle) {
         settingsMenuTitle.textContent =
             viewName === 'controls' ? 'Controls' :
-            viewName === 'visualization' ? 'Visualization' :
             'Settings';
     }
 }
@@ -910,6 +1280,7 @@ function setSettingsView(viewName) {
 function setControlsMenuOpen(isOpen) {
     if (isOpen) {
         setSearchMenuOpen(false);
+        setViewMenuOpen(false);
     }
 
     controlsMenu.classList.toggle('is-open', isOpen);
@@ -931,6 +1302,11 @@ searchButton?.addEventListener('click', function (event) {
     setSearchMenuOpen(!searchMenu.classList.contains('is-open'));
 });
 
+viewMenuButton?.addEventListener('click', function (event) {
+    event.stopPropagation();
+    setViewMenuOpen(!viewMenu.classList.contains('is-open'));
+});
+
 controlsMenu.addEventListener('click', function (event) {
     event.stopPropagation();
 });
@@ -939,11 +1315,80 @@ searchMenu?.addEventListener('click', function (event) {
     event.stopPropagation();
 });
 
+viewMenu?.addEventListener('click', function (event) {
+    event.stopPropagation();
+});
+
 closeSearchMenuButton?.addEventListener('click', function () {
     setSearchMenuOpen(false);
 });
 
+closeViewMenuButton?.addEventListener('click', function () {
+    setViewMenuOpen(false);
+});
+
+viewBackButton?.addEventListener('click', function () {
+    const isFilterDetailView =
+        viewFilterTypeView?.classList.contains('is-active') ||
+        viewFilterCompanyView?.classList.contains('is-active');
+
+    setViewMenuView(isFilterDetailView ? 'filter' : 'main');
+});
+
+filterMenuButton?.addEventListener('click', function () {
+    setViewMenuView('filter');
+});
+
+advancedViewSettingsButton?.addEventListener('click', function () {
+    setViewMenuView('advanced-settings');
+});
+
+filterTypeButton?.addEventListener('click', function () {
+    setViewMenuView('filter-type');
+});
+
+filterCompanyButton?.addEventListener('click', function () {
+    setViewMenuView('filter-company');
+});
+
+resetFilterSettingsButton?.addEventListener('click', resetFilterSettings);
+
+resetAdvancedViewSettingsButton?.addEventListener(
+    'click',
+    resetAdvancedViewSettings
+);
+
 vesselSearchInput?.addEventListener('input', renderSearchResults);
+
+vesselSearchClearButton?.addEventListener('click', function () {
+    if (!vesselSearchInput) return;
+
+    vesselSearchInput.value = '';
+    renderSearchResults();
+    vesselSearchInput.focus();
+});
+
+searchOptionsButton?.addEventListener('click', function () {
+    setSearchOptionsOpen(searchOptionsPanel?.hidden ?? true);
+});
+
+searchSortAlphaAscButton?.addEventListener('click', function () {
+    setSearchSortMode('alpha-asc');
+});
+
+searchSortAlphaDescButton?.addEventListener('click', function () {
+    setSearchSortMode('alpha-desc');
+});
+
+searchSortVisibleFirstButton?.addEventListener('click', function () {
+    setSearchSortMode('visible-first');
+});
+
+searchSortHiddenFirstButton?.addEventListener('click', function () {
+    setSearchSortMode('hidden-first');
+});
+
+resetSearchSettingsButton?.addEventListener('click', resetSearchSettings);
 
 settingsBackButton?.addEventListener('click', function () {
     setSettingsView('main');
@@ -953,8 +1398,8 @@ controlsMenuButton?.addEventListener('click', function () {
     setSettingsView('controls');
 });
 
-visualizationMenuButton?.addEventListener('click', function () {
-    setSettingsView('visualization');
+toggleThemeButton?.addEventListener('click', function () {
+    setLightTheme(!document.body.classList.contains('light-theme'));
 });
 
 closeControlsMenuButton.addEventListener('click', function () {
@@ -979,12 +1424,15 @@ window.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
         setControlsMenuOpen(false);
         setSearchMenuOpen(false);
+        setViewMenuOpen(false);
     }
 });
 
 updateWaterEffectsButton();
 updateLightDirectionButton();
 updateCompassButton();
+updateSearchSortButtons();
+setLightTheme(localStorage.getItem('port-ui-theme') === 'light');
 // -----------------------------
 // BOAT
 // -----------------------------
@@ -993,6 +1441,12 @@ const gltfLoader = new GLTFLoader();
 
 const ships = [];
 const shipModels = [];
+const activeTypeFilters = new Set();
+const activeCompanyFilters = new Set();
+const knownTypeFilters = new Set();
+const knownCompanyFilters = new Set();
+const manuallyShownShipIds = new Set();
+const manuallyHiddenShipIds = new Set();
 let selectedShip = null;
 let followShip = false;
 let focusedShip = false;
@@ -1334,10 +1788,11 @@ shipsData.forEach(function (shipData) {
                 trailColor: shipData.trailColor,
                 collisionRadius: collisionRadius,
                 trailOffset: trailOffset,
+                isFilteredVisible: true,
             });
 
-            shipModels.push(shipModel);
-            renderSearchResults();
+            renderFilterOptions();
+            applyShipFilters();
             markAssetLoaded();
         },
 
@@ -1716,7 +2171,7 @@ function updateShipTrail(ship, now) {
         ship.trailLine.geometry = trailGeometry;
     }
 
-    ship.trailLine.visible = trailsVisible;
+    ship.trailLine.visible = trailsVisible && ship.isFilteredVisible !== false;
 }
 
 function setShipTrailVisibility(ship, isVisible) {
@@ -1729,7 +2184,10 @@ function setTrailsVisible(isVisible) {
     trailsVisible = isVisible;
 
     ships.forEach(function (ship) {
-        setShipTrailVisibility(ship, trailsVisible);
+        setShipTrailVisibility(
+            ship,
+            trailsVisible && ship.isFilteredVisible !== false
+        );
     });
 
     toggleTrailButton.setAttribute('aria-pressed', String(trailsVisible));
