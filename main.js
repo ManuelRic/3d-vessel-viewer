@@ -26,6 +26,9 @@ initDateTimeWidget();
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x050816);
+const worldUp = new THREE.Vector3(0, 1, 0);
+const forwardBase = new THREE.Vector3(0, 0, 1);
+const northDirection = new THREE.Vector3(0, 0, -1).normalize();
 
 // -----------------------------
 // LOADING SCREEN
@@ -146,9 +149,84 @@ const controlsHelp = document.getElementById('controls-help');
 const closeControlsMenuButton = document.getElementById('close-controls-menu');
 const toggleWaterEffectsButton = document.getElementById('toggle-water-effects');
 const toggleLightDirectionButton = document.getElementById('toggle-light-direction');
+const toggleCompassButton = document.getElementById('toggle-compass');
+const compassWidget = document.querySelector('.compass-widget');
+const compassNeedle = document.getElementById('compass-needle');
+const compassCardinals = document.getElementById('compass-cardinals');
+const compassDegrees = document.getElementById('compass-degrees');
 let trailsVisible = true;
 let waterEffectsEnabled = true;
 let lightDirectionEnabled = true;
+let compassVisible = true;
+
+// -----------------------------
+// COMPASS
+// -----------------------------
+
+const compassCameraForward = new THREE.Vector3();
+const compassCameraRight = new THREE.Vector3();
+const eastDirection = new THREE.Vector3()
+    .crossVectors(northDirection, worldUp)
+    .normalize();
+let compassNeedleAngle = 0;
+let hasCompassNeedleAngle = false;
+
+function updateCompass() {
+    if (!compassNeedle && !compassCardinals) return;
+
+    camera.getWorldDirection(compassCameraForward);
+    compassCameraForward.y = 0;
+
+    if (compassCameraForward.lengthSq() < 0.0001) {
+        compassCameraForward
+            .subVectors(controls.target, camera.position)
+            .setY(0);
+    }
+
+    if (compassCameraForward.lengthSq() < 0.0001) return;
+
+    compassCameraForward.normalize();
+    compassCameraRight
+        .crossVectors(compassCameraForward, worldUp)
+        .normalize();
+
+    const screenX = northDirection.dot(compassCameraRight);
+    const screenY = northDirection.dot(compassCameraForward);
+    const angle = Math.atan2(screenX, screenY);
+
+    if (!hasCompassNeedleAngle) {
+        compassNeedleAngle = angle;
+        hasCompassNeedleAngle = true;
+    } else {
+        const angleDelta = Math.atan2(
+            Math.sin(angle - compassNeedleAngle),
+            Math.cos(angle - compassNeedleAngle)
+        );
+
+        compassNeedleAngle += angleDelta;
+    }
+
+    const rotation = `rotate(${compassNeedleAngle}rad)`;
+
+    if (compassNeedle) {
+        compassNeedle.style.transform = rotation;
+    }
+
+    if (compassCardinals) {
+        compassCardinals.style.transform = rotation;
+    }
+
+    if (compassDegrees) {
+        const headingRadians = Math.atan2(
+            compassCameraForward.dot(eastDirection),
+            compassCameraForward.dot(northDirection)
+        );
+        const headingDegrees =
+            (THREE.MathUtils.radToDeg(headingRadians) + 360) % 360;
+
+        compassDegrees.textContent = `${Math.round(headingDegrees)}°`;
+    }
+}
 
 // -----------------------------
 // CONTROLS
@@ -280,6 +358,9 @@ const shiftRightLookSmoothing = 0.22;
 const minCameraLookPhi = 0.05;
 const maxCameraLookPhi = Math.PI - 0.05;
 const cameraOrbitPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.5);
+const screenCenter = new THREE.Vector2(0, 0);
+const centerRaycaster = new THREE.Raycaster();
+const centerOrbitPoint = new THREE.Vector3();
 let cameraPointerStart = null;
 let cameraRightPointer = null;
 let shiftLeftPanPointer = null;
@@ -300,13 +381,10 @@ function getCameraOrbitTarget() {
         return getShipCenter(focusedShip);
     }
 
-    const centerRaycaster = new THREE.Raycaster();
-    centerRaycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+    centerRaycaster.setFromCamera(screenCenter, camera);
 
-    const centerPoint = new THREE.Vector3();
-
-    if (centerRaycaster.ray.intersectPlane(cameraOrbitPlane, centerPoint)) {
-        return centerPoint;
+    if (centerRaycaster.ray.intersectPlane(cameraOrbitPlane, centerOrbitPoint)) {
+        return centerOrbitPoint.clone();
     }
 
     return controls.target.clone();
@@ -603,6 +681,13 @@ function updateLightDirectionButton() {
     );
 }
 
+function updateCompassButton() {
+    if (!toggleCompassButton) return;
+
+    toggleCompassButton.setAttribute('aria-pressed', String(compassVisible));
+    toggleCompassButton.classList.toggle('is-off', !compassVisible);
+}
+
 function setWaterEffectsEnabled(enabled) {
     waterEffectsEnabled = enabled;
     water.visible = waterEffectsEnabled;
@@ -618,6 +703,16 @@ function setLightDirectionEnabled(enabled) {
     ambientLight.intensity = lightDirectionEnabled ? light / 8 : light * 0.8;
     updateWaterSunFromLight();
     updateLightDirectionButton();
+}
+
+function setCompassVisible(isVisible) {
+    compassVisible = isVisible;
+
+    if (compassWidget) {
+        compassWidget.classList.toggle('is-hidden', !compassVisible);
+    }
+
+    updateCompassButton();
 }
 
 function setControlsMenuOpen(isOpen) {
@@ -661,6 +756,12 @@ toggleLightDirectionButton.addEventListener('click', function () {
     setLightDirectionEnabled(!lightDirectionEnabled);
 });
 
+if (toggleCompassButton) {
+    toggleCompassButton.addEventListener('click', function () {
+        setCompassVisible(!compassVisible);
+    });
+}
+
 window.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
         setControlsMenuOpen(false);
@@ -669,6 +770,7 @@ window.addEventListener('keydown', function (event) {
 
 updateWaterEffectsButton();
 updateLightDirectionButton();
+updateCompassButton();
 // -----------------------------
 // BOAT
 // -----------------------------
@@ -676,10 +778,12 @@ updateLightDirectionButton();
 const gltfLoader = new GLTFLoader();
 
 const ships = [];
+const shipModels = [];
 let selectedShip = null;
 let followShip = false;
 let focusedShip = false;
 let followOffset = new THREE.Vector3(0, 35, 80);
+const desiredCameraPosition = new THREE.Vector3();
 
 const boatBounds = 1500;
 const collisionLookAheadFrames = 1500;
@@ -713,8 +817,8 @@ function getRelativeBearing(forward, relativePosition) {
 }
 
 function getShipForward(ship) {
-    return new THREE.Vector3(0, 0, 1).applyAxisAngle(
-        new THREE.Vector3(0, 1, 0),
+    return forwardBase.clone().applyAxisAngle(
+        worldUp,
         ship.model.rotation.y - ship.forwardOffset
     );
 }
@@ -1009,13 +1113,12 @@ shipsData.forEach(function (shipData) {
                 trailPositions: [],
                 trailTimes: [],
                 trailLine: null,
-                trailOutlineLine: null,
                 trailColor: shipData.trailColor,
                 collisionRadius: collisionRadius,
                 trailOffset: trailOffset,
             });
 
-            console.log('Ship loaded:', shipData.name, modelPath);
+            shipModels.push(shipModel);
             markAssetLoaded();
         },
 
@@ -1043,7 +1146,6 @@ function getShipUnderMouse(event) {
 
     raycaster.setFromCamera(mouse, camera);
 
-    const shipModels = ships.map(ship => ship.model);
     const hits = raycaster.intersectObjects(shipModels, true);
 
     if (hits.length === 0) return null;
@@ -1389,10 +1491,6 @@ function setShipTrailVisibility(ship, isVisible) {
     if (ship.trailLine) {
         ship.trailLine.visible = isVisible;
     }
-
-    if (ship.trailOutlineLine) {
-        ship.trailOutlineLine.visible = isVisible;
-    }
 }
 
 function setTrailsVisible(isVisible) {
@@ -1416,8 +1514,6 @@ let trailSimulationTime = 0;
 
 function animate() {
     requestAnimationFrame(animate);
-
-    updateWaterSunFromLight();
 
     if (waterEffectsEnabled) {
         waterEffectsMaterial.uniforms['time'].value += 1.0 / 60.0;
@@ -1448,19 +1544,14 @@ function animate() {
 
         followOffset.copy(camera.position).sub(controls.target);
 
-        const desiredCameraPosition = new THREE.Vector3()
-            .copy(shipCenter)
-            .add(followOffset);
+        desiredCameraPosition.copy(shipCenter).add(followOffset);
 
         camera.position.lerp(desiredCameraPosition, 0.08);
         controls.target.lerp(shipCenter, 0.08);
     }
 
     controls.update();
-
-    if (latestHoverEvent) {
-        updateVesselHover(latestHoverEvent);
-    }
+    updateCompass();
 
     renderer.render(scene, camera);
 
