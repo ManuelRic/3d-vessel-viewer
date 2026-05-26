@@ -1,5 +1,7 @@
 Now:    
     IMPORT WATER
+    organize controls so they are in a more logical order
+    if clicked vessel is double clicked, dont hide and show same card, simply keep it visible
     no smooth on camera shift right click rotate
     ✅ add vessel name on hover
     remove lower opacity on trail off button
@@ -32,5 +34,6 @@ Future:
     reactive water texture  ==> https://github.com/martinRenou/threejs-water !!!
     make water reflection only visible from sun direction side
     ✅ add clock with current date-time
+    !! date-time should not be of the local machine, but of the port
     add meotorological conditions
     change to angular

@@ -58,7 +58,7 @@ canvas:active {
 .loading-spinner {
     width: 34px;
     height: 34px;
-
+    margin: 50px;
     border: 2px solid rgba(235, 239, 255, 0.22);
     border-top-color: #6fa8ff;
     border-radius: 50%;
@@ -141,12 +141,9 @@ canvas:active {
 }
 
 .control-button:hover .control-button-svg {
-    transform: scale(1.15);
+    transform: scale(1.11);
 }
 
-#settings:hover .control-button-svg {
-    transform: scale(1.12);
-}
 
 .control-button:active {
     transform: translateY(0);
@@ -163,6 +160,12 @@ canvas:active {
     border-color: rgba(255, 255, 255, 0.16);
 }
 
+.control-button.is-active {
+    color: #ffffff;
+    background: rgba(47, 91, 157, 0.88);
+    border-color: rgba(111, 168, 255, 0.48);
+}
+
 .control-menu-wrapper {
     position: relative;
 }
@@ -171,7 +174,8 @@ canvas:active {
     position: relative;
 }
 
-.controls-menu {
+.controls-menu,
+.search-menu {
     display: none;
     position: absolute;
     top: 62px;
@@ -192,32 +196,98 @@ canvas:active {
     -webkit-backdrop-filter: blur(14px);
 }
 
-.controls-menu.is-open {
+.controls-menu.is-open,
+.search-menu.is-open {
     display: grid;
     gap: 4px;
 }
 
-.controls-menu-header {
-    display: flex;
+.controls-menu-header,
+.search-menu-header {
+    display: grid;
+    grid-template-columns: 1fr 30px;
     align-items: center;
-    justify-content: space-between;
+    column-gap: 8px;
 
     min-height: 30px;
     padding: 0 2px 2px 10px;
 }
 
-.controls-menu-title {
+.controls-menu-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    grid-column: 1;
+    grid-row: 1;
+
+    width: 30px;
+    height: 30px;
+    margin-left: -8px;
+    padding: 0;
+
+    color: rgba(235, 239, 255, 0.78);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 50%;
+
+    cursor: pointer;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
+}
+
+.controls-menu-back[aria-hidden="true"] {
+    visibility: hidden;
+}
+
+.controls-menu-back:hover {
+    color: #ebefff;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(-1px);
+}
+
+.controls-menu-back:focus-visible {
+    outline: 2px solid rgba(111, 168, 255, 0.9);
+    outline-offset: 2px;
+}
+
+.controls-menu-back-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.controls-menu-title,
+.search-menu-title {
+    grid-column: 1;
+    grid-row: 1;
+
     color: #ebefff;
 
     font-size: 13px;
     font-weight: 700;
+    text-align: left;
 }
 
-.controls-menu-close {
+.controls-menu:not(.is-subview) .controls-menu-title {
+    margin-left: 0;
+}
+
+.controls-menu.is-subview .controls-menu-title {
+    margin-left: 30px;
+}
+
+.controls-menu-close,
+.search-menu-close {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     justify-self: end;
+    grid-column: 2;
 
     width: 30px;
     height: 30px;
@@ -237,19 +307,22 @@ canvas:active {
         transform 0.18s ease;
 }
 
-.controls-menu-close:hover {
+.controls-menu-close:hover,
+.search-menu-close:hover {
     color: #ebefff;
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.1);
     transform: translateY(-1px);
 }
 
-.controls-menu-close:focus-visible {
+.controls-menu-close:focus-visible,
+.search-menu-close:focus-visible {
     outline: 2px solid rgba(111, 168, 255, 0.9);
     outline-offset: 2px;
 }
 
-.controls-menu-close-icon {
+.controls-menu-close-icon,
+.search-menu-close-icon {
     width: 22px;
     height: 22px;
 }
@@ -301,86 +374,13 @@ canvas:active {
     height: 24px;
 }
 
-.search-menu {
+.settings-view {
     display: none;
-    position: absolute;
-    top: 62px;
-    left: 0;
-
-    width: 280px;
-    padding: 6px;
-
-    background: rgba(10, 14, 28, 0.92);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 8px;
-
-    box-shadow:
-        0 12px 28px rgba(0, 0, 0, 0.32),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
-
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
 }
 
-.search-menu.is-open {
+.settings-view.is-active {
     display: grid;
-    gap: 8px;
-}
-
-.search-menu-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    min-height: 30px;
-    padding: 0 2px 0 10px;
-}
-
-.search-menu-title {
-    color: #ebefff;
-
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.search-menu-close {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    width: 30px;
-    height: 30px;
-    padding: 0;
-
-    color: rgba(235, 239, 255, 0.78);
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 50%;
-
-    cursor: pointer;
-
-    transition:
-        background 0.18s ease,
-        border-color 0.18s ease,
-        color 0.18s ease,
-        transform 0.18s ease;
-}
-
-.search-menu-close:hover {
-    color: #ebefff;
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.1);
-    transform: translateY(-1px);
-}
-
-.search-menu-close:focus-visible {
-    outline: 2px solid rgba(111, 168, 255, 0.9);
-    outline-offset: 2px;
-}
-
-.search-menu-close-icon {
-    width: 22px;
-    height: 22px;
+    gap: 4px;
 }
 
 .search-input {
@@ -413,6 +413,28 @@ canvas:active {
 
     max-height: 240px;
     overflow-y: auto;
+
+    scrollbar-color: rgba(111, 168, 255, 0.65) rgba(255, 255, 255, 0.06);
+    scrollbar-width: thin;
+}
+
+.search-results::-webkit-scrollbar {
+    width: 8px;
+}
+
+.search-results::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 999px;
+}
+
+.search-results::-webkit-scrollbar-thumb {
+    background: rgba(111, 168, 255, 0.58);
+    border: 2px solid rgba(10, 14, 28, 0.92);
+    border-radius: 999px;
+}
+
+.search-results::-webkit-scrollbar-thumb:hover {
+    background: rgba(111, 168, 255, 0.82);
 }
 
 .search-result-item {
@@ -457,16 +479,6 @@ canvas:active {
 
 .search-empty {
     padding: 8px 10px;
-}
-
-.controls-help {
-    display: none;
-    padding: 4px 0 6px;
-}
-
-.controls-help.is-open {
-    display: grid;
-    gap: 4px;
 }
 
 .controls-help-row {

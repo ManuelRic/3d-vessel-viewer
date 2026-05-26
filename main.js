@@ -96,6 +96,8 @@ new RGBELoader().load(
 // -----------------------------
 const defaultCameraPosition = new THREE.Vector3(0, 80, 180);
 const defaultCameraTarget = new THREE.Vector3(0, 0, 0);
+const topViewCameraPosition = new THREE.Vector3(0, 800, 1);
+const topViewCameraTarget = new THREE.Vector3(0, 0, 0);
 
 const camera = new THREE.PerspectiveCamera(
     60,
@@ -148,9 +150,14 @@ const searchMenu = document.getElementById('search-menu');
 const closeSearchMenuButton = document.getElementById('close-search-menu');
 const vesselSearchInput = document.getElementById('vessel-search-input');
 const vesselSearchResults = document.getElementById('vessel-search-results');
+const settingsBackButton = document.getElementById('settings-back-button');
+const settingsMenuTitle = document.querySelector('.controls-menu-title');
+const settingsMainView = document.getElementById('settings-main-view');
+const settingsControlsView = document.getElementById('settings-controls-view');
+const settingsVisualizationView = document.getElementById('settings-visualization-view');
 const controlsMenuButton = document.getElementById('controls-menu-button');
+const visualizationMenuButton = document.getElementById('visualization-menu-button');
 const controlsMenu = document.getElementById('controls-menu');
-const controlsHelp = document.getElementById('controls-help');
 const closeControlsMenuButton = document.getElementById('close-controls-menu');
 const toggleWaterEffectsButton = document.getElementById('toggle-water-effects');
 const toggleLightDirectionButton = document.getElementById('toggle-light-direction');
@@ -240,6 +247,10 @@ function updateCompass() {
 function setSearchMenuOpen(isOpen) {
     if (!searchMenu || !searchButton) return;
 
+    if (isOpen) {
+        setControlsMenuOpen(false);
+    }
+
     searchMenu.classList.toggle('is-open', isOpen);
     searchMenu.setAttribute('aria-hidden', String(!isOpen));
     searchButton.setAttribute('aria-expanded', String(isOpen));
@@ -253,6 +264,8 @@ function setSearchMenuOpen(isOpen) {
 }
 
 function focusShipFromSearch(ship) {
+    clearTopViewRestoreState();
+
     focusedShip = ship;
     selectedShip = ship;
     followShip = true;
@@ -335,6 +348,7 @@ function renderSearchResults() {
 const controls = new OrbitControls(camera, renderer.domElement);
 const cameraDampingFactor = 0.12;
 const cameraTransitionDuration = 0.35;
+const topViewTransitionDuration = 0.85;
 const minShipFocusDistance = 65;
 const maxShipFocusDistance = 150;
 let cameraTransition = null;
@@ -374,12 +388,16 @@ function easeOutCubic(value) {
     return 1 - Math.pow(1 - value, 3);
 }
 
-function startCameraTransition(position, target) {
+function startCameraTransition(
+    position,
+    target,
+    duration = cameraTransitionDuration
+) {
     clearCameraMomentum();
 
     cameraTransition = {
         startTime: performance.now() / 1000,
-        duration: cameraTransitionDuration,
+        duration: duration,
         startPosition: camera.position.clone(),
         endPosition: position.clone(),
         startTarget: controls.target.clone(),
@@ -446,6 +464,55 @@ function getShipFocusOffset() {
     );
 
     return offset.normalize().multiplyScalar(distance);
+}
+
+function setTopViewActive(active) {
+    isTopViewActive = active;
+    topViewButton.setAttribute('aria-pressed', String(isTopViewActive));
+    topViewButton.classList.toggle('is-active', isTopViewActive);
+}
+
+function clearTopViewRestoreState() {
+    topViewRestoreState = null;
+    setTopViewActive(false);
+}
+
+function getCurrentCameraViewState() {
+    if (cameraTransition) {
+        return {
+            position: cameraTransition.endPosition.clone(),
+            target: cameraTransition.endTarget.clone(),
+            selectedShip: selectedShip,
+            focusedShip: focusedShip,
+            followShip: followShip
+        };
+    }
+
+    return {
+        position: camera.position.clone(),
+        target: controls.target.clone(),
+        selectedShip: selectedShip,
+        focusedShip: focusedShip,
+        followShip: followShip
+    };
+}
+
+function restoreCameraViewState(viewState) {
+    selectedShip = viewState.selectedShip;
+    focusedShip = viewState.focusedShip;
+    followShip = viewState.followShip;
+
+    startCameraTransition(
+        viewState.position,
+        viewState.target,
+        topViewTransitionDuration
+    );
+
+    if (selectedShip) {
+        showBoatDetails(selectedShip.details);
+    } else {
+        hideBoatDetails();
+    }
 }
 
 // -----------------------------
@@ -582,6 +649,7 @@ renderer.domElement.addEventListener('pointerdown', function (event) {
         renderer.domElement.setPointerCapture(event.pointerId);
         cameraTransition = null;
         setCanvasCursor('grabbing');
+        clearTopViewRestoreState();
 
         if (event.shiftKey) {
             followShip = false;
@@ -640,6 +708,7 @@ renderer.domElement.addEventListener('pointermove', function (event) {
     setCanvasCursor('grabbing');
     suppressClickAfterCameraDrag();
     cameraTransition = null;
+    clearTopViewRestoreState();
     followShip = false;
     focusedShip = false;
 });
@@ -815,15 +884,40 @@ function setCompassVisible(isVisible) {
     updateCompassButton();
 }
 
+function setSettingsView(viewName) {
+    const isMainView = viewName === 'main';
+
+    controlsMenu?.classList.toggle('is-subview', !isMainView);
+    settingsMainView?.classList.toggle('is-active', isMainView);
+    settingsControlsView?.classList.toggle('is-active', viewName === 'controls');
+    settingsVisualizationView?.classList.toggle(
+        'is-active',
+        viewName === 'visualization'
+    );
+
+    if (settingsBackButton) {
+        settingsBackButton.setAttribute('aria-hidden', String(isMainView));
+    }
+
+    if (settingsMenuTitle) {
+        settingsMenuTitle.textContent =
+            viewName === 'controls' ? 'Controls' :
+            viewName === 'visualization' ? 'Visualization' :
+            'Settings';
+    }
+}
+
 function setControlsMenuOpen(isOpen) {
+    if (isOpen) {
+        setSearchMenuOpen(false);
+    }
+
     controlsMenu.classList.toggle('is-open', isOpen);
     controlsMenu.setAttribute('aria-hidden', String(!isOpen));
     settingsButton.setAttribute('aria-expanded', String(isOpen));
 
     if (!isOpen) {
-        controlsHelp.classList.remove('is-open');
-        controlsHelp.setAttribute('aria-hidden', 'true');
-        controlsMenuButton.setAttribute('aria-expanded', 'false');
+        setSettingsView('main');
     }
 }
 
@@ -851,12 +945,16 @@ closeSearchMenuButton?.addEventListener('click', function () {
 
 vesselSearchInput?.addEventListener('input', renderSearchResults);
 
-controlsMenuButton.addEventListener('click', function () {
-    const isOpen = !controlsHelp.classList.contains('is-open');
+settingsBackButton?.addEventListener('click', function () {
+    setSettingsView('main');
+});
 
-    controlsHelp.classList.toggle('is-open', isOpen);
-    controlsHelp.setAttribute('aria-hidden', String(!isOpen));
-    controlsMenuButton.setAttribute('aria-expanded', String(isOpen));
+controlsMenuButton?.addEventListener('click', function () {
+    setSettingsView('controls');
+});
+
+visualizationMenuButton?.addEventListener('click', function () {
+    setSettingsView('visualization');
 });
 
 closeControlsMenuButton.addEventListener('click', function () {
@@ -900,6 +998,10 @@ let followShip = false;
 let focusedShip = false;
 let followOffset = new THREE.Vector3(0, 35, 80);
 const desiredCameraPosition = new THREE.Vector3();
+let topViewRestoreState = null;
+let isTopViewActive = false;
+
+setTopViewActive(false);
 
 const boatBounds = 1500;
 const collisionLookAheadFrames = 1500;
@@ -1338,6 +1440,7 @@ window.addEventListener('dblclick', function (event) {
     hideVesselHoverLabel();
 
     if (focusedShip === clickedShip && followShip) {
+        clearTopViewRestoreState();
         followShip = false;
         focusedShip = false;
         selectedShip = null;
@@ -1351,6 +1454,7 @@ window.addEventListener('dblclick', function (event) {
         return;
     }
 
+    clearTopViewRestoreState();
     focusedShip = clickedShip;
     selectedShip = clickedShip;
     followShip = true;
@@ -1467,16 +1571,27 @@ window.addEventListener('mouseleave', function () {
 // -----------------------------
 
 topViewButton.addEventListener('click', function () {
+    if (isTopViewActive && topViewRestoreState) {
+        const restoreState = topViewRestoreState;
+
+        topViewRestoreState = null;
+        setTopViewActive(false);
+        restoreCameraViewState(restoreState);
+        return;
+    }
+
+    topViewRestoreState = getCurrentCameraViewState();
+    setTopViewActive(true);
 
     followShip = false;
+    focusedShip = false;
     selectedShip = null;
     clearCameraMomentum();
 
-    const center = new THREE.Vector3(0, 0, 0);
-
     startCameraTransition(
-        new THREE.Vector3(0, 800, 0),
-        center
+        topViewCameraPosition,
+        topViewCameraTarget,
+        topViewTransitionDuration
     );
 
     hideBoatDetails();
