@@ -143,6 +143,11 @@ const sunDirection = sunLight.position.clone().normalize();
 const topViewButton = document.getElementById('top-view-button');
 const toggleTrailButton = document.getElementById('toggle-trail');
 const settingsButton = document.getElementById('settings');
+const searchButton = document.getElementById('search-button');
+const searchMenu = document.getElementById('search-menu');
+const closeSearchMenuButton = document.getElementById('close-search-menu');
+const vesselSearchInput = document.getElementById('vessel-search-input');
+const vesselSearchResults = document.getElementById('vessel-search-results');
 const controlsMenuButton = document.getElementById('controls-menu-button');
 const controlsMenu = document.getElementById('controls-menu');
 const controlsHelp = document.getElementById('controls-help');
@@ -226,6 +231,101 @@ function updateCompass() {
 
         compassDegrees.textContent = `${Math.round(headingDegrees)}°`;
     }
+}
+
+// -----------------------------
+// SEARCH
+// -----------------------------
+
+function setSearchMenuOpen(isOpen) {
+    if (!searchMenu || !searchButton) return;
+
+    searchMenu.classList.toggle('is-open', isOpen);
+    searchMenu.setAttribute('aria-hidden', String(!isOpen));
+    searchButton.setAttribute('aria-expanded', String(isOpen));
+
+    if (isOpen) {
+        renderSearchResults();
+        requestAnimationFrame(function () {
+            vesselSearchInput?.focus();
+        });
+    }
+}
+
+function focusShipFromSearch(ship) {
+    focusedShip = ship;
+    selectedShip = ship;
+    followShip = true;
+
+    clearHoverTimer();
+    hideVesselHoverLabel();
+
+    const shipCenter = getShipCenter(ship);
+
+    followOffset.copy(getShipFocusOffset());
+
+    startCameraTransition(
+        new THREE.Vector3().copy(shipCenter).add(followOffset),
+        shipCenter
+    );
+
+    showBoatDetails(ship.details);
+    setSearchMenuOpen(false);
+}
+
+function createSearchResult(ship) {
+    const button = document.createElement('button');
+    const name = document.createElement('span');
+    const meta = document.createElement('span');
+
+    button.className = 'search-result-item';
+    button.type = 'button';
+
+    name.className = 'search-result-name';
+    name.textContent = ship.details.name;
+
+    meta.className = 'search-result-meta';
+    meta.textContent = `${ship.details.type} - IMO ${ship.details.imo}`;
+
+    button.append(name, meta);
+    button.addEventListener('click', function () {
+        focusShipFromSearch(ship);
+    });
+
+    return button;
+}
+
+function renderSearchResults() {
+    if (!vesselSearchResults) return;
+
+    const query = vesselSearchInput?.value.trim().toLowerCase() ?? '';
+    const matches = ships
+        .filter(function (ship) {
+            if (!query) return true;
+
+            return ship.details.name.toLowerCase().includes(query);
+        })
+        .sort(function (a, b) {
+            return a.details.name.localeCompare(b.details.name);
+        });
+
+    if (matches.length === 0) {
+        const empty = document.createElement('div');
+
+        empty.className = 'search-empty';
+        empty.textContent = query ?
+            'No vessels found' :
+            'No vessels loaded yet';
+
+        vesselSearchResults.replaceChildren(empty);
+        return;
+    }
+
+    vesselSearchResults.replaceChildren(
+        ...matches.map(function (ship) {
+            return createSearchResult(ship);
+        })
+    );
 }
 
 // -----------------------------
@@ -732,9 +832,24 @@ settingsButton.addEventListener('click', function (event) {
     setControlsMenuOpen(!controlsMenu.classList.contains('is-open'));
 });
 
+searchButton?.addEventListener('click', function (event) {
+    event.stopPropagation();
+    setSearchMenuOpen(!searchMenu.classList.contains('is-open'));
+});
+
 controlsMenu.addEventListener('click', function (event) {
     event.stopPropagation();
 });
+
+searchMenu?.addEventListener('click', function (event) {
+    event.stopPropagation();
+});
+
+closeSearchMenuButton?.addEventListener('click', function () {
+    setSearchMenuOpen(false);
+});
+
+vesselSearchInput?.addEventListener('input', renderSearchResults);
 
 controlsMenuButton.addEventListener('click', function () {
     const isOpen = !controlsHelp.classList.contains('is-open');
@@ -765,6 +880,7 @@ if (toggleCompassButton) {
 window.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
         setControlsMenuOpen(false);
+        setSearchMenuOpen(false);
     }
 });
 
@@ -1119,6 +1235,7 @@ shipsData.forEach(function (shipData) {
             });
 
             shipModels.push(shipModel);
+            renderSearchResults();
             markAssetLoaded();
         },
 

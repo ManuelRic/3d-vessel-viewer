@@ -1,8 +1,16 @@
 export function initDateTimeWidget(){
     const dateTimeWidget = document.getElementById('datetime-widget');
-    const valenciaTimeZone = 'Europe/Madrid';
-    const valenciaDateTimeFormatter = new Intl.DateTimeFormat('en-CA', {
-        timeZone: valenciaTimeZone,
+    const portLocation = {
+        city: 'Valencia',
+        country: 'Spain'
+    };
+    const portTimeZones = {
+        'Valencia, Spain': 'Europe/Madrid'
+    };
+    const portLocationKey = `${portLocation.city}, ${portLocation.country}`;
+    const portTimeZone = portTimeZones[portLocationKey] ?? 'UTC';
+    const portDateTimeFormatter = new Intl.DateTimeFormat('en-CA', {
+        timeZone: portTimeZone,
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
@@ -12,8 +20,8 @@ export function initDateTimeWidget(){
         fractionalSecondDigits: 3,
         hour12: false
     });
-    const valenciaOffsetFormatter = new Intl.DateTimeFormat('en-US', {
-        timeZone: valenciaTimeZone,
+    const portOffsetFormatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: portTimeZone,
         timeZoneName: 'shortOffset'
     });
 
@@ -21,9 +29,9 @@ export function initDateTimeWidget(){
         return parts.find(part => part.type === type)?.value ?? '';
     }
 
-    function getValenciaOffset(date) {
+    function getPortOffset(date) {
         const timeZoneName = getPart(
-            valenciaOffsetFormatter.formatToParts(date),
+            portOffsetFormatter.formatToParts(date),
             'timeZoneName'
         );
         const match = timeZoneName.match(/^GMT([+-])(\d{1,2})(?::(\d{2}))?$/);
@@ -37,8 +45,8 @@ export function initDateTimeWidget(){
         return `${sign}${hours}:${minutes}`;
     }
 
-    function getValenciaIsoString(date) {
-        const parts = valenciaDateTimeFormatter.formatToParts(date);
+    function getPortIsoString(date) {
+        const parts = portDateTimeFormatter.formatToParts(date);
         const datePart = [
             getPart(parts, 'year'),
             getPart(parts, 'month'),
@@ -51,13 +59,13 @@ export function initDateTimeWidget(){
         ].join(':');
         const fractionalSecond = getPart(parts, 'fractionalSecond');
 
-        return `${datePart}T${timePart}.${fractionalSecond}${getValenciaOffset(date)}`;
+        return `${datePart}T${timePart}.${fractionalSecond}${getPortOffset(date)}`;
     }
 
     function updateDateTimeWidget() {
         if (!dateTimeWidget) return;
 
-        dateTimeWidget.textContent = getValenciaIsoString(new Date());
+        dateTimeWidget.textContent = getPortIsoString(new Date());
     }
 
     updateDateTimeWidget();

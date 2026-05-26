@@ -167,6 +167,10 @@ canvas:active {
     position: relative;
 }
 
+.search-menu-wrapper {
+    position: relative;
+}
+
 .controls-menu {
     display: none;
     position: absolute;
@@ -297,6 +301,164 @@ canvas:active {
     height: 24px;
 }
 
+.search-menu {
+    display: none;
+    position: absolute;
+    top: 62px;
+    left: 0;
+
+    width: 280px;
+    padding: 6px;
+
+    background: rgba(10, 14, 28, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+
+    box-shadow:
+        0 12px 28px rgba(0, 0, 0, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.search-menu.is-open {
+    display: grid;
+    gap: 8px;
+}
+
+.search-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-height: 30px;
+    padding: 0 2px 0 10px;
+}
+
+.search-menu-title {
+    color: #ebefff;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.search-menu-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 30px;
+    height: 30px;
+    padding: 0;
+
+    color: rgba(235, 239, 255, 0.78);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 50%;
+
+    cursor: pointer;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
+}
+
+.search-menu-close:hover {
+    color: #ebefff;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+.search-menu-close:focus-visible {
+    outline: 2px solid rgba(111, 168, 255, 0.9);
+    outline-offset: 2px;
+}
+
+.search-menu-close-icon {
+    width: 22px;
+    height: 22px;
+}
+
+.search-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 10px;
+
+    color: #ebefff;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 6px;
+
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.search-input::placeholder {
+    color: rgba(235, 239, 255, 0.42);
+}
+
+.search-input:focus {
+    outline: 2px solid rgba(111, 168, 255, 0.9);
+    outline-offset: 2px;
+}
+
+.search-results {
+    display: grid;
+    gap: 4px;
+
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.search-result-item {
+    display: grid;
+    gap: 2px;
+
+    width: 100%;
+    padding: 8px 10px;
+
+    color: #ebefff;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+
+    font: inherit;
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease;
+}
+
+.search-result-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.search-result-name {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.search-result-meta,
+.search-empty {
+    color: rgba(235, 239, 255, 0.58);
+
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.search-empty {
+    padding: 8px 10px;
+}
+
 .controls-help {
     display: none;
     padding: 4px 0 6px;
@@ -362,18 +524,20 @@ canvas:active {
     left: 20px;
     z-index: 10;
 
-    width: max-content;
+    width: fit-content;
 
-    padding: 8px 12px;
+    padding: 6px 8px;
 
     color: #f5f7ff;
     background: rgba(10, 14, 28, 0.88);
 
     border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 999px;
+    border-radius: 10px;
 
     font-size: 13px;
     font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
 
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -514,7 +678,7 @@ canvas:active {
     color: #ebefff;
     background: rgba(10, 14, 28, 0.78);
     border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 999px;
+    border-radius: 10px;
 
     font-size: 12px;
     font-weight: 700;
@@ -539,7 +703,7 @@ canvas:active {
     background: rgba(10, 14, 28, 0.9);
 
     border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 999px;
+    border-radius: 10px;
 
     font-size: 12px;
     font-weight: 600;

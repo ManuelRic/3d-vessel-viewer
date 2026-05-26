@@ -96,14 +96,29 @@
                     <svg class="controls-menu-icon lucide lucide-compass-icon lucide-compass" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"/></svg>
                     <span>Compass</span>
                 </button>
+                <button class="controls-menu-item" id="toggle-trail" type="button" aria-pressed="true">
+                    <svg class="controls-menu-icon lucide lucide-line-squiggle-icon lucide-line-squiggle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.5c5-2 7 2.5 3 4C1.5 10 2 15 5 16c5 2 9-10 14-7s.5 13.5-4 12c-5-2.5.5-11 6-2"/></svg>
+                    <span>Trails</span>
+                </button>
+            </div>
+        </div>
+        <div class="search-menu-wrapper">
+            <button class="control-button" id="search-button" type="button" aria-expanded="false" aria-controls="search-menu">
+                <svg class="control-button-svg lucide lucide-search-icon lucide-search" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+            </button>
+            <div class="search-menu" id="search-menu" aria-hidden="true">
+                <div class="search-menu-header">
+                    <span class="search-menu-title">Search vessels</span>
+                    <button class="search-menu-close" id="close-search-menu" type="button">
+                        <svg class="search-menu-close-icon lucide lucide-x-icon lucide-x" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+                <input class="search-input" id="vessel-search-input" type="search" placeholder="Vessel name" autocomplete="off">
+                <div class="search-results" id="vessel-search-results"></div>
             </div>
         </div>
         <button class="control-button"  id="top-view-button" type="button">
             <svg class="control-button-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-land-plot-icon lucide-land-plot"><path d="m12 8 6-3-6-3v10"/><path d="m8 11.99-5.5 3.14a1 1 0 0 0 0 1.74l8.5 4.86a2 2 0 0 0 2 0l8.5-4.86a1 1 0 0 0 0-1.74L16 12"/><path d="m6.49 12.85 11.02 6.3"/><path d="M17.51 12.85 6.5 19.15"/></svg>        
-        </button>
-
-        <button class="control-button" id="toggle-trail" type="button">
-           <svg class="control-button-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-line-squiggle-icon lucide-line-squiggle"><path d="M7 3.5c5-2 7 2.5 3 4C1.5 10 2 15 5 16c5 2 9-10 14-7s.5 13.5-4 12c-5-2.5.5-11 6-2"/></svg>
         </button>
     </div>
     <div id="vessel-hover-label"></div>
