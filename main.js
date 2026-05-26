@@ -28,6 +28,46 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x050816);
 
 // -----------------------------
+// LOADING SCREEN
+// -----------------------------
+
+const loadingScreen = document.getElementById('loading-screen');
+const loadingBarFill = document.getElementById('loading-bar-fill');
+const loadingAssetTotal = shipsData.length + 2;
+let loadingAssetCount = 0;
+let firstFrameRendered = false;
+
+function updateLoadingProgress() {
+    if (!loadingBarFill) return;
+
+    const progress = loadingAssetTotal > 0 ?
+        loadingAssetCount / loadingAssetTotal :
+        1;
+
+    loadingBarFill.style.width = `${Math.round(progress * 100)}%`;
+}
+
+function tryHideLoadingScreen() {
+    if (
+        !loadingScreen ||
+        !firstFrameRendered ||
+        loadingAssetCount < loadingAssetTotal
+    ) {
+        return;
+    }
+
+    loadingScreen.classList.add('is-hidden');
+}
+
+function markAssetLoaded() {
+    loadingAssetCount = Math.min(loadingAssetCount + 1, loadingAssetTotal);
+    updateLoadingProgress();
+    tryHideLoadingScreen();
+}
+
+updateLoadingProgress();
+
+// -----------------------------
 // Sky
 // -----------------------------
 
@@ -39,10 +79,12 @@ new RGBELoader().load(
 
         scene.background = texture;
         scene.environment = null;
+        markAssetLoaded();
     },
     undefined,
     function (error) {
         console.error('Error loading HDR skybox:', error);
+        markAssetLoaded();
     }
 );
 
@@ -237,6 +279,7 @@ const cameraLookSensitivity = 0.005;
 const shiftRightLookSmoothing = 0.22;
 const minCameraLookPhi = 0.05;
 const maxCameraLookPhi = Math.PI - 0.05;
+const cameraOrbitPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.5);
 let cameraPointerStart = null;
 let cameraRightPointer = null;
 let shiftLeftPanPointer = null;
@@ -257,7 +300,16 @@ function getCameraOrbitTarget() {
         return getShipCenter(focusedShip);
     }
 
-    return defaultCameraTarget.clone();
+    const centerRaycaster = new THREE.Raycaster();
+    centerRaycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+
+    const centerPoint = new THREE.Vector3();
+
+    if (centerRaycaster.ray.intersectPlane(cameraOrbitPlane, centerPoint)) {
+        return centerPoint;
+    }
+
+    return controls.target.clone();
 }
 
 function queueSmoothCameraLook(movementX, movementY) {
@@ -479,6 +531,12 @@ const water = new Water(
             './textures/water.jpg',
             function (texture) {
                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+                markAssetLoaded();
+            },
+            undefined,
+            function (error) {
+                console.error('Error loading water texture:', error);
+                markAssetLoaded();
             }
         ),
 
@@ -902,6 +960,7 @@ shipsData.forEach(function (shipData) {
 
     if (!modelPath) {
         console.error('Missing model path for ship type:', shipData.shipType);
+        markAssetLoaded();
         return;
     }
 
@@ -957,12 +1016,14 @@ shipsData.forEach(function (shipData) {
             });
 
             console.log('Ship loaded:', shipData.name, modelPath);
+            markAssetLoaded();
         },
 
         undefined,
 
         function (error) {
             console.error('Error loading ship:', shipData.name, error);
+            markAssetLoaded();
         }
     );
 });
@@ -1402,6 +1463,11 @@ function animate() {
     }
 
     renderer.render(scene, camera);
+
+    if (!firstFrameRendered) {
+        firstFrameRendered = true;
+        tryHideLoadingScreen();
+    }
 }
 
 animate();
