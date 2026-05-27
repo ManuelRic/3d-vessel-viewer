@@ -137,7 +137,7 @@
                         <span>Compass</span>
                     </button>
                     <button class="controls-menu-item" id="toggle-vessel-name-labels" type="button" aria-pressed="false">
-                        <svg class="controls-menu-icon lucide lucide-tag-icon lucide-tag" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+                        <svg class="search-result-toggle-icon lucide lucide-tag-icon lucide-tag" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: scaleX(-1);"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg>
                         <span>Vessel name always on</span>
                     </button>
                     <button class="controls-menu-item" id="toggle-trail" type="button" aria-pressed="true">
@@ -170,18 +170,10 @@
                         </button>
                     </div>
                     <button class="search-options-button" id="search-options-button" type="button" aria-expanded="false" aria-controls="search-options-panel" aria-label="Search options">
-                        <svg class="search-options-icon lucide lucide-funnel-plus-icon lucide-funnel-plus" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.354 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14v6a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341l1.218-1.348"/><path d="M16 6h6"/><path d="M19 3v6"/></svg>
+                        <svg class="search-options-icon lucide lucide-funnel-icon lucide-funnel" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"/></svg>
                     </button>
                 </div>
                 <div class="search-options-panel" id="search-options-panel" hidden>
-                    <button class="controls-menu-item search-sort-option is-active" id="search-sort-alpha-toggle" type="button">
-                        <span class="search-sort-icon-slot" id="search-alpha-icon-slot" aria-hidden="true"></span>
-                        <span id="search-alpha-label">A-Z</span>
-                    </button>
-                    <button class="controls-menu-item search-sort-option" id="search-sort-visibility-toggle" type="button">
-                        <span class="search-sort-icon-slot" id="search-visibility-icon-slot" aria-hidden="true"></span>
-                        <span id="search-visibility-label">Visible first</span>
-                    </button>
                     <div class="filter-category-row">
                         <button class="controls-menu-item filter-category-button" id="filter-type-button" type="button" aria-expanded="false" aria-controls="search-filter-type-panel">
                             <svg class="controls-menu-icon lucide lucide-ship-icon lucide-ship" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 21c.6.5 1.2 1 2.5 1s1.9-.5 2.5-1 1.2-1 2.5-1 1.9.5 2.5 1 1.2 1 2.5 1 1.9-.5 2.5-1 1.2-1 2.5-1 1.9.5 2.5 1"/><path d="M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 2.9 1.1 5.5 2.62 6"/><path d="M19 13V7a2 2 0 0 0-2-2h-3V3h-4v2H7a2 2 0 0 0-2 2v6"/><path d="M12 10v4"/><path d="M12 2v1"/></svg>
@@ -212,6 +204,25 @@
                         <svg class="controls-menu-icon lucide lucide-rotate-ccw-icon lucide-rotate-ccw" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
                         <span>Restore all</span>
                     </button>
+                </div>
+                <div class="search-results-header">
+                    <div class="search-results-header-content">
+                        <button class="search-header-sort is-active" id="search-sort-name" type="button" data-search-sort="name" aria-sort="ascending">
+                            <span>Name</span>
+                        </button>
+                        <button class="search-header-sort" id="search-sort-company" type="button" data-search-sort="company" aria-sort="none">
+                            <span>Company</span>
+                        </button>
+                        <button class="search-header-sort" id="search-sort-type" type="button" data-search-sort="type" aria-sort="none">
+                            <span>Type</span>
+                        </button>
+                    </div>
+                    <div class="search-results-header-actions">
+                        <button class="search-action-columns-toggle" id="search-action-columns-toggle" type="button" aria-expanded="false" aria-label="Show vessel action columns">
+                            <svg class="search-result-toggle-icon lucide lucide-funnel-plus-icon lucide-funnel-plus" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.354 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14v6a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341l1.218-1.348"/><path d="M16 6h6"/><path d="M19 3v6"/></svg>
+                        </button>
+                    </div>
+                    <span class="search-results-header-gutter" aria-hidden="true"></span>
                 </div>
                 <div class="search-results" id="vessel-search-results"></div>
             </div>

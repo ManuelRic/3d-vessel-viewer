@@ -153,12 +153,8 @@ const vesselSearchClearButton = document.getElementById('vessel-search-clear');
 const vesselSearchResults = document.getElementById('vessel-search-results');
 const searchOptionsButton = document.getElementById('search-options-button');
 const searchOptionsPanel = document.getElementById('search-options-panel');
-const searchSortAlphaToggle = document.getElementById('search-sort-alpha-toggle');
-const searchSortVisibilityToggle = document.getElementById('search-sort-visibility-toggle');
-const searchAlphaIconSlot = document.getElementById('search-alpha-icon-slot');
-const searchVisibilityIconSlot = document.getElementById('search-visibility-icon-slot');
-const searchAlphaLabel = document.getElementById('search-alpha-label');
-const searchVisibilityLabel = document.getElementById('search-visibility-label');
+const searchActionColumnsToggle = document.getElementById('search-action-columns-toggle');
+const searchSortButtons = document.querySelectorAll('[data-search-sort]');
 const resetSearchSettingsButton = document.getElementById('reset-search-settings');
 const viewMenuButton = document.getElementById('view-menu-button');
 const viewMenu = document.getElementById('view-menu');
@@ -202,9 +198,9 @@ let waterEffectsEnabled = true;
 let lightDirectionEnabled = true;
 let compassVisible = true;
 let vesselNameLabelsVisible = false;
-let searchSortMode = 'alpha-asc';
-let searchAlphaSortDirection = 'asc';
-let searchVisibilitySortDirection = 'visible';
+let searchSortColumn = 'name';
+let searchSortDirection = 'asc';
+let searchActionColumnsVisible = false;
 
 // -----------------------------
 // COMPASS
@@ -280,7 +276,7 @@ function updateCompass() {
 // -----------------------------
 
 function setSearchMenuOpen(isOpen) {
-    if (!searchMenu || !searchButton) return;
+    if (!searchMenu) return;
 
     if (isOpen) {
         setControlsMenuOpen(false);
@@ -367,46 +363,85 @@ function focusShipFromSearch(ship) {
 
 const visibleSearchIcon = '<svg class="search-result-toggle-icon lucide lucide-video-icon lucide-video" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>';
 const hiddenSearchIcon = '<svg class="search-result-toggle-icon lucide lucide-video-off-icon lucide-video-off" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.66 6H14a2 2 0 0 1 2 2v2.5l5.248-3.062A.5.5 0 0 1 22 7.87v8.196"/><path d="M16 16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2"/><path d="m2 2 20 20"/></svg>';
-const visibleSortIcon = '<svg class="controls-menu-icon lucide lucide-video-icon lucide-video" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>';
-const hiddenSortIcon = '<svg class="controls-menu-icon lucide lucide-video-off-icon lucide-video-off" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.66 6H14a2 2 0 0 1 2 2v2.5l5.248-3.062A.5.5 0 0 1 22 7.87v8.196"/><path d="M16 16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2"/><path d="m2 2 20 20"/></svg>';
-const alphaAscSearchIcon = '<svg class="controls-menu-icon lucide lucide-arrow-up-a-z-icon lucide-arrow-up-a-z" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="M20 8h-5"/><path d="M15 10V6.5a2.5 2.5 0 0 1 5 0V10"/><path d="M15 14h5l-5 6h5"/></svg>';
-const alphaDescSearchIcon = '<svg class="controls-menu-icon lucide lucide-arrow-down-a-z-icon lucide-arrow-down-a-z" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="M20 8h-5"/><path d="M15 10V6.5a2.5 2.5 0 0 1 5 0V10"/><path d="M15 14h5l-5 6h5"/></svg>';
+const visibleTrailIcon = '<svg class="search-result-toggle-icon lucide lucide-line-squiggle-icon lucide-line-squiggle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.5c5-2 7 2.5 3 4C1.5 10 2 15 5 16c5 2 9-10 14-7s.5 13.5-4 12c-5-2.5.5-11 6-2"/></svg>';
+const hiddenTrailIcon = '<svg class="search-result-toggle-icon lucide lucide-ban-icon lucide-ban" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>';
+const visibleNameIcon = '<svg class="search-result-toggle-icon lucide lucide-tag-icon lucide-tag" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: scaleX(-1);"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg>';
+const hiddenNameIcon = '<svg class="search-result-toggle-icon lucide lucide-tag-icon lucide-tag" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: scaleX(-1);"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/><path d="m2 2 20 20" style="transform: scaleX(-1); transform-origin: center;"/></svg>';
 
 function createSearchResult(ship) {
     const row = document.createElement('div');
+    const mainRow = document.createElement('div');
     const button = document.createElement('button');
+    const optionsGroup = document.createElement('div');
     const visibilityButton = document.createElement('button');
+    const trailButton = document.createElement('button');
+    const nameButton = document.createElement('button');
+    const content = document.createElement('span');
     const name = document.createElement('span');
-    const meta = document.createElement('span');
+    const company = document.createElement('span');
+    const type = document.createElement('span');
     const isVisible = ship.isFilteredVisible !== false;
+    const isTrailVisible = !manuallyHiddenTrailShipIds.has(ship.details.id);
+    const isNameVisible = isShipNameLabelVisible(ship);
 
     row.className = 'search-result-row';
     row.classList.toggle('is-hidden-vessel', !isVisible);
+    mainRow.className = 'search-result-main-row';
     button.className = 'search-result-item';
     button.type = 'button';
-    visibilityButton.className = 'search-result-toggle';
+    optionsGroup.className = 'search-result-inline-options';
+    visibilityButton.className = 'search-result-option-button';
     visibilityButton.type = 'button';
+    visibilityButton.innerHTML = `${isVisible ? visibleSearchIcon : hiddenSearchIcon}`;
+    trailButton.className = 'search-result-option-button';
+    trailButton.type = 'button';
+    trailButton.innerHTML = `${isTrailVisible ? visibleTrailIcon : hiddenTrailIcon}`;
+    nameButton.className = 'search-result-option-button';
+    nameButton.type = 'button';
+    nameButton.innerHTML = `${isNameVisible ? visibleNameIcon : hiddenNameIcon}`;
     visibilityButton.setAttribute(
         'aria-label',
         isVisible ? `Hide ${ship.details.name}` : `Show ${ship.details.name}`
     );
-    visibilityButton.innerHTML = isVisible ? visibleSearchIcon : hiddenSearchIcon;
+    trailButton.setAttribute(
+        'aria-label',
+        isTrailVisible ?
+            `Hide ${ship.details.name} trail` :
+            `Show ${ship.details.name} trail`
+    );
+    nameButton.setAttribute(
+        'aria-label',
+        isNameVisible ?
+            `Hide ${ship.details.name} name` :
+            `Show ${ship.details.name} name`
+    );
 
+    content.className = 'search-result-content';
     name.className = 'search-result-name';
     name.textContent = ship.details.name;
+    company.className = 'search-result-company';
+    company.textContent = ship.details.company ?? 'Unknown';
+    type.className = 'search-result-type';
+    type.textContent = ship.details.category ?? ship.details.type;
 
-    meta.className = 'search-result-meta';
-    meta.textContent = `${ship.details.category ?? ship.details.type} - ${ship.details.company ?? 'Unknown'}`;
-
-    button.append(name, meta);
+    content.append(name, company, type);
+    button.append(content);
     button.addEventListener('click', function () {
         focusShipFromSearch(ship);
     });
     visibilityButton.addEventListener('click', function () {
         setShipSearchVisibility(ship, !isVisible);
     });
+    trailButton.addEventListener('click', function () {
+        setShipTrailOverride(ship, isTrailVisible);
+    });
+    nameButton.addEventListener('click', function () {
+        setShipNameLabelOverride(ship, isNameVisible);
+    });
 
-    row.append(button, visibilityButton);
+    optionsGroup.append(visibilityButton, trailButton, nameButton);
+    mainRow.append(button, optionsGroup);
+    row.append(mainRow);
 
     return row;
 }
@@ -437,37 +472,78 @@ function setShipSearchVisibility(ship, isVisible) {
     applyShipFilters();
 }
 
-function updateSearchSortButtons() {
-    const isAlphaSort =
-        searchSortMode === 'alpha-asc' ||
-        searchSortMode === 'alpha-desc';
-    const isVisibleFirst = searchVisibilitySortDirection === 'visible';
-    const isAlphaAscending = searchAlphaSortDirection === 'asc';
-
-    searchSortAlphaToggle?.classList.toggle('is-active', isAlphaSort);
-    searchSortVisibilityToggle?.classList.toggle(
-        'is-active',
-        !isAlphaSort
+function isShipTrailVisible(ship) {
+    return (
+        trailsVisible &&
+        ship.isFilteredVisible !== false &&
+        !manuallyHiddenTrailShipIds.has(ship.details.id)
     );
+}
 
-    if (searchAlphaIconSlot) {
-        searchAlphaIconSlot.innerHTML =
-            isAlphaAscending ? alphaAscSearchIcon : alphaDescSearchIcon;
+function setShipTrailOverride(ship, shouldHideTrail) {
+    if (shouldHideTrail) {
+        manuallyHiddenTrailShipIds.add(ship.details.id);
+    } else {
+        manuallyHiddenTrailShipIds.delete(ship.details.id);
     }
 
-    if (searchAlphaLabel) {
-        searchAlphaLabel.textContent = isAlphaAscending ? 'A-Z' : 'Z-A';
+    setShipTrailVisibility(ship, isShipTrailVisible(ship));
+    renderSearchResults();
+}
+
+function isShipNameLabelVisible(ship) {
+    if (manuallyHiddenNameShipIds.has(ship.details.id)) return false;
+
+    return (
+        vesselNameLabelsVisible ||
+        manuallyShownNameShipIds.has(ship.details.id)
+    );
+}
+
+function setShipNameLabelOverride(ship, shouldHideName) {
+    if (shouldHideName) {
+        manuallyShownNameShipIds.delete(ship.details.id);
+        manuallyHiddenNameShipIds.add(ship.details.id);
+    } else {
+        manuallyHiddenNameShipIds.delete(ship.details.id);
+        manuallyShownNameShipIds.add(ship.details.id);
     }
 
-    if (searchVisibilityIconSlot) {
-        searchVisibilityIconSlot.innerHTML =
-            isVisibleFirst ? visibleSortIcon : hiddenSortIcon;
+    if (!isShipNameLabelVisible(ship)) {
+        const label = vesselNameLabels.get(ship);
+
+        if (label) {
+            label.style.display = 'none';
+        }
     }
 
-    if (searchVisibilityLabel) {
-        searchVisibilityLabel.textContent =
-            isVisibleFirst ? 'Visible first' : 'Hidden first';
-    }
+    renderSearchResults();
+}
+
+function updateSearchSortButtons() {
+    searchSortButtons.forEach(function (button) {
+        const isActive = button.dataset.searchSort === searchSortColumn;
+
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute(
+            'aria-sort',
+            isActive ?
+                (searchSortDirection === 'asc' ? 'ascending' : 'descending') :
+                'none'
+        );
+    });
+}
+
+function setSearchActionColumnsVisible(isVisible) {
+    searchActionColumnsVisible = isVisible;
+
+    searchMenu?.classList.toggle('has-search-actions', isVisible);
+    searchActionColumnsToggle?.classList.toggle('is-active', isVisible);
+    searchActionColumnsToggle?.setAttribute('aria-expanded', String(isVisible));
+    searchActionColumnsToggle?.setAttribute(
+        'aria-label',
+        isVisible ? 'Hide vessel action columns' : 'Show vessel action columns'
+    );
 }
 
 function setSearchOptionsOpen(isOpen) {
@@ -501,21 +577,23 @@ function toggleSearchFilterPanel(panel, button) {
     button.setAttribute('aria-expanded', String(isOpen));
 }
 
-function setSearchSortMode(mode) {
-    searchSortMode = mode;
-
-    if (mode === 'alpha-asc') {
-        searchAlphaSortDirection = 'asc';
-    } else if (mode === 'alpha-desc') {
-        searchAlphaSortDirection = 'desc';
-    } else if (mode === 'visible-first') {
-        searchVisibilitySortDirection = 'visible';
-    } else if (mode === 'hidden-first') {
-        searchVisibilitySortDirection = 'hidden';
+function setSearchSortColumn(column) {
+    if (searchSortColumn === column) {
+        searchSortDirection = searchSortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+        searchSortColumn = column;
+        searchSortDirection = 'asc';
     }
 
     updateSearchSortButtons();
     renderSearchResults();
+}
+
+function getShipSearchSortValue(ship, column) {
+    if (column === 'company') return ship.details.company ?? 'Unknown';
+    if (column === 'type') return ship.details.category ?? ship.details.type ?? '';
+
+    return ship.details.name;
 }
 
 function resetSearchSettings() {
@@ -525,8 +603,14 @@ function resetSearchSettings() {
 
     manuallyShownShipIds.clear();
     manuallyHiddenShipIds.clear();
-    searchVisibilitySortDirection = 'visible';
-    setSearchSortMode('alpha-asc');
+    manuallyHiddenTrailShipIds.clear();
+    manuallyShownNameShipIds.clear();
+    manuallyHiddenNameShipIds.clear();
+    searchSortColumn = 'name';
+    searchSortDirection = 'asc';
+    updateSearchSortButtons();
+    setSearchActionColumnsVisible(false);
+    renderSearchResults();
     setSearchOptionsOpen(false);
     resetFilterSettings();
     vesselSearchInput?.focus();
@@ -548,19 +632,13 @@ function renderSearchResults() {
             return ship.details.name.toLowerCase().includes(query);
         })
         .sort(function (a, b) {
-            const nameSort = a.details.name.localeCompare(b.details.name);
+            const aValue = getShipSearchSortValue(a, searchSortColumn);
+            const bValue = getShipSearchSortValue(b, searchSortColumn);
+            const primarySort = aValue.localeCompare(bValue);
+            const fallbackSort = a.details.name.localeCompare(b.details.name);
+            const direction = searchSortDirection === 'asc' ? 1 : -1;
 
-            if (searchSortMode === 'alpha-desc') return -nameSort;
-            if (searchSortMode === 'alpha-asc') return nameSort;
-
-            const aVisible = a.isFilteredVisible !== false;
-            const bVisible = b.isFilteredVisible !== false;
-
-            if (aVisible === bVisible) return nameSort;
-
-            return searchSortMode === 'visible-first' ?
-                (aVisible ? -1 : 1) :
-                (aVisible ? 1 : -1);
+            return (primarySort || fallbackSort) * direction;
         });
 
     if (matches.length === 0) {
@@ -686,7 +764,7 @@ function applyShipFilters() {
 
         ship.isFilteredVisible = isVisible;
         ship.model.visible = isVisible;
-        setShipTrailVisibility(ship, trailsVisible && isVisible);
+        setShipTrailVisibility(ship, isShipTrailVisible(ship));
     });
 
     shipModels.length = 0;
@@ -1309,6 +1387,8 @@ function setVesselNameLabelsVisible(isVisible) {
     if (!vesselNameLabelsVisible) {
         hideVesselNameLabels();
     }
+
+    renderSearchResults();
 }
 
 const lightThemeIcon = '<svg class="controls-menu-icon lucide lucide-sun-icon lucide-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
@@ -1444,18 +1524,14 @@ searchOptionsButton?.addEventListener('click', function () {
     setSearchOptionsOpen(searchOptionsPanel?.hidden ?? true);
 });
 
-searchSortAlphaToggle?.addEventListener('click', function () {
-    setSearchSortMode(
-        searchAlphaSortDirection === 'asc' ? 'alpha-desc' : 'alpha-asc'
-    );
+searchActionColumnsToggle?.addEventListener('click', function () {
+    setSearchActionColumnsVisible(!searchActionColumnsVisible);
 });
 
-searchSortVisibilityToggle?.addEventListener('click', function () {
-    setSearchSortMode(
-        searchVisibilitySortDirection === 'visible' ?
-            'hidden-first' :
-            'visible-first'
-    );
+searchSortButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+        setSearchSortColumn(button.dataset.searchSort);
+    });
 });
 
 resetSearchSettingsButton?.addEventListener('click', resetSearchSettings);
@@ -1522,6 +1598,9 @@ const knownTypeFilters = new Set();
 const knownCompanyFilters = new Set();
 const manuallyShownShipIds = new Set();
 const manuallyHiddenShipIds = new Set();
+const manuallyHiddenTrailShipIds = new Set();
+const manuallyShownNameShipIds = new Set();
+const manuallyHiddenNameShipIds = new Set();
 let selectedShip = null;
 let followShip = false;
 let focusedShip = false;
@@ -2066,12 +2145,18 @@ function hideVesselNameLabels() {
 }
 
 function updateVesselNameLabels() {
-    if (!vesselNameLabelsVisible) return;
+    if (!vesselNameLabelsVisible && manuallyShownNameShipIds.size === 0) {
+        hideVesselNameLabels();
+        return;
+    }
 
     ships.forEach(function (ship) {
         const label = getVesselNameLabel(ship);
 
-        if (ship.isFilteredVisible === false) {
+        if (
+            ship.isFilteredVisible === false ||
+            !isShipNameLabelVisible(ship)
+        ) {
             label.style.display = 'none';
             return;
         }
@@ -2342,7 +2427,7 @@ function updateShipTrail(ship, now) {
         ship.trailLine.geometry = trailGeometry;
     }
 
-    ship.trailLine.visible = trailsVisible && ship.isFilteredVisible !== false;
+    ship.trailLine.visible = isShipTrailVisible(ship);
 }
 
 function setShipTrailVisibility(ship, isVisible) {
@@ -2357,12 +2442,13 @@ function setTrailsVisible(isVisible) {
     ships.forEach(function (ship) {
         setShipTrailVisibility(
             ship,
-            trailsVisible && ship.isFilteredVisible !== false
+            isShipTrailVisible(ship)
         );
     });
 
     toggleTrailButton.setAttribute('aria-pressed', String(trailsVisible));
     toggleTrailButton.classList.toggle('is-off', !trailsVisible);
+    renderSearchResults();
 }
 
 toggleTrailButton.addEventListener('click', function () {

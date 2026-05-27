@@ -3,11 +3,16 @@
 
 Now:    
     IMPORT WATER
+    !Clicking on a diff button should close the current one (search - settings - view)
+    !Search close button should work
+    make search drop down menu be a side menu
+    change top left icons (search - view - settings)
     vessel name height based on vessel height
     ✅ fix search filter(toggle svgs) for a-z and visible
     ✅ organize controls so they are in a more logical order
     if clicked vessel is double clicked, dont hide and show same card, simply keep it visible
     ✅ no smooth on camera shift right click rotate
+    add status filter
     ✅ add vessel name on hover
     remove lower opacity on trail off button
     remove water texture since the waves will be created by gerstner waves
