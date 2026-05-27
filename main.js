@@ -2100,6 +2100,15 @@ function showVesselHoverLabel(ship, event) {
 }
 
 function updateVesselHover(event) {
+    if (vesselNameLabelsVisible) {
+        setCanvasCursor(getShipUnderMouse(event) ? 'pointer' : 'grab');
+        hoveredShip = null;
+        latestHoverEvent = null;
+        clearHoverTimer();
+        hideVesselHoverLabel();
+        return;
+    }
+
     if (isPointerOverInterface(event)) {
         setCanvasCursor('grab');
         hoveredShip = null;
