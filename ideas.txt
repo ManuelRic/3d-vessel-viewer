@@ -3,6 +3,7 @@
 
 Now:    
     IMPORT WATER
+    fix search filter(toggle svgs) for a-z and visible
     organize controls so they are in a more logical order
     if clicked vessel is double clicked, dont hide and show same card, simply keep it visible
     no smooth on camera shift right click rotate

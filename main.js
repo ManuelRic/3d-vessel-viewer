@@ -153,10 +153,12 @@ const vesselSearchClearButton = document.getElementById('vessel-search-clear');
 const vesselSearchResults = document.getElementById('vessel-search-results');
 const searchOptionsButton = document.getElementById('search-options-button');
 const searchOptionsPanel = document.getElementById('search-options-panel');
-const searchSortAlphaAscButton = document.getElementById('search-sort-alpha-asc');
-const searchSortAlphaDescButton = document.getElementById('search-sort-alpha-desc');
-const searchSortVisibleFirstButton = document.getElementById('search-sort-visible-first');
-const searchSortHiddenFirstButton = document.getElementById('search-sort-hidden-first');
+const searchSortAlphaToggle = document.getElementById('search-sort-alpha-toggle');
+const searchSortVisibilityToggle = document.getElementById('search-sort-visibility-toggle');
+const searchAlphaIconSlot = document.getElementById('search-alpha-icon-slot');
+const searchVisibilityIconSlot = document.getElementById('search-visibility-icon-slot');
+const searchAlphaLabel = document.getElementById('search-alpha-label');
+const searchVisibilityLabel = document.getElementById('search-visibility-label');
 const resetSearchSettingsButton = document.getElementById('reset-search-settings');
 const viewMenuButton = document.getElementById('view-menu-button');
 const viewMenu = document.getElementById('view-menu');
@@ -164,19 +166,18 @@ const closeViewMenuButton = document.getElementById('close-view-menu');
 const viewBackButton = document.getElementById('view-back-button');
 const viewMenuTitle = document.querySelector('.view-menu-title');
 const viewMainView = document.getElementById('view-main-view');
-const viewFilterView = document.getElementById('view-filter-view');
-const viewFilterTypeView = document.getElementById('view-filter-type-view');
-const viewFilterCompanyView = document.getElementById('view-filter-company-view');
 const viewAdvancedSettingsView = document.getElementById('view-advanced-settings-view');
-const filterMenuButton = document.getElementById('filter-menu-button');
 const advancedViewSettingsButton = document.getElementById('advanced-view-settings-button');
 const filterTypeButton = document.getElementById('filter-type-button');
 const filterCompanyButton = document.getElementById('filter-company-button');
+const searchFilterTypePanel = document.getElementById('search-filter-type-panel');
+const searchFilterCompanyPanel = document.getElementById('search-filter-company-panel');
 const filterTypeOptions = document.getElementById('filter-type-options');
 const filterCompanyOptions = document.getElementById('filter-company-options');
 const filterTypeSummary = document.getElementById('filter-type-summary');
 const filterCompanySummary = document.getElementById('filter-company-summary');
-const resetFilterSettingsButton = document.getElementById('reset-filter-settings');
+const resetTypeFilterButton = document.getElementById('reset-type-filter');
+const resetCompanyFilterButton = document.getElementById('reset-company-filter');
 const resetAdvancedViewSettingsButton = document.getElementById('reset-advanced-view-settings');
 const toggleThemeButton = document.getElementById('toggle-theme');
 const themeIconSlot = document.getElementById('theme-icon-slot');
@@ -200,6 +201,8 @@ let waterEffectsEnabled = true;
 let lightDirectionEnabled = true;
 let compassVisible = true;
 let searchSortMode = 'alpha-asc';
+let searchAlphaSortDirection = 'asc';
+let searchVisibilitySortDirection = 'visible';
 
 // -----------------------------
 // COMPASS
@@ -317,15 +320,6 @@ function setViewMenuView(viewName) {
 
     viewMenu?.classList.toggle('is-subview', !isMainView);
     viewMainView?.classList.toggle('is-active', isMainView);
-    viewFilterView?.classList.toggle('is-active', viewName === 'filter');
-    viewFilterTypeView?.classList.toggle(
-        'is-active',
-        viewName === 'filter-type'
-    );
-    viewFilterCompanyView?.classList.toggle(
-        'is-active',
-        viewName === 'filter-company'
-    );
     viewAdvancedSettingsView?.classList.toggle(
         'is-active',
         viewName === 'advanced-settings'
@@ -337,10 +331,7 @@ function setViewMenuView(viewName) {
 
     if (viewMenuTitle) {
         viewMenuTitle.textContent =
-            viewName === 'filter-type' ? 'Type' :
-            viewName === 'filter-company' ? 'Company' :
             viewName === 'advanced-settings' ? 'Advanced view settings' :
-            viewName === 'filter' ? 'Filter' :
             'View';
     }
 }
@@ -374,6 +365,10 @@ function focusShipFromSearch(ship) {
 
 const visibleSearchIcon = '<svg class="search-result-toggle-icon lucide lucide-video-icon lucide-video" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>';
 const hiddenSearchIcon = '<svg class="search-result-toggle-icon lucide lucide-video-off-icon lucide-video-off" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.66 6H14a2 2 0 0 1 2 2v2.5l5.248-3.062A.5.5 0 0 1 22 7.87v8.196"/><path d="M16 16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2"/><path d="m2 2 20 20"/></svg>';
+const visibleSortIcon = '<svg class="controls-menu-icon lucide lucide-video-icon lucide-video" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>';
+const hiddenSortIcon = '<svg class="controls-menu-icon lucide lucide-video-off-icon lucide-video-off" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.66 6H14a2 2 0 0 1 2 2v2.5l5.248-3.062A.5.5 0 0 1 22 7.87v8.196"/><path d="M16 16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2"/><path d="m2 2 20 20"/></svg>';
+const alphaAscSearchIcon = '<svg class="controls-menu-icon lucide lucide-arrow-up-a-z-icon lucide-arrow-up-a-z" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="M20 8h-5"/><path d="M15 10V6.5a2.5 2.5 0 0 1 5 0V10"/><path d="M15 14h5l-5 6h5"/></svg>';
+const alphaDescSearchIcon = '<svg class="controls-menu-icon lucide lucide-arrow-down-a-z-icon lucide-arrow-down-a-z" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="M20 8h-5"/><path d="M15 10V6.5a2.5 2.5 0 0 1 5 0V10"/><path d="M15 14h5l-5 6h5"/></svg>';
 
 function createSearchResult(ship) {
     const row = document.createElement('div');
@@ -441,34 +436,82 @@ function setShipSearchVisibility(ship, isVisible) {
 }
 
 function updateSearchSortButtons() {
-    searchSortAlphaAscButton?.classList.toggle(
+    const isAlphaSort =
+        searchSortMode === 'alpha-asc' ||
+        searchSortMode === 'alpha-desc';
+    const isVisibleFirst = searchVisibilitySortDirection === 'visible';
+    const isAlphaAscending = searchAlphaSortDirection === 'asc';
+
+    searchSortAlphaToggle?.classList.toggle('is-active', isAlphaSort);
+    searchSortVisibilityToggle?.classList.toggle(
         'is-active',
-        searchSortMode === 'alpha-asc'
+        !isAlphaSort
     );
-    searchSortAlphaDescButton?.classList.toggle(
-        'is-active',
-        searchSortMode === 'alpha-desc'
-    );
-    searchSortVisibleFirstButton?.classList.toggle(
-        'is-active',
-        searchSortMode === 'visible-first'
-    );
-    searchSortHiddenFirstButton?.classList.toggle(
-        'is-active',
-        searchSortMode === 'hidden-first'
-    );
+
+    if (searchAlphaIconSlot) {
+        searchAlphaIconSlot.innerHTML =
+            isAlphaAscending ? alphaAscSearchIcon : alphaDescSearchIcon;
+    }
+
+    if (searchAlphaLabel) {
+        searchAlphaLabel.textContent = isAlphaAscending ? 'A-Z' : 'Z-A';
+    }
+
+    if (searchVisibilityIconSlot) {
+        searchVisibilityIconSlot.innerHTML =
+            isVisibleFirst ? visibleSortIcon : hiddenSortIcon;
+    }
+
+    if (searchVisibilityLabel) {
+        searchVisibilityLabel.textContent =
+            isVisibleFirst ? 'Visible first' : 'Hidden first';
+    }
 }
 
 function setSearchOptionsOpen(isOpen) {
     if (!searchOptionsButton || !searchOptionsPanel) return;
 
-    searchOptionsPanel.hidden = !isOpen;
     searchOptionsButton.classList.toggle('is-active', isOpen);
     searchOptionsButton.setAttribute('aria-expanded', String(isOpen));
+
+    if (isOpen) {
+        searchOptionsPanel.hidden = false;
+        requestAnimationFrame(function () {
+            searchOptionsPanel.classList.add('is-open');
+        });
+        return;
+    }
+
+    searchOptionsPanel.classList.remove('is-open');
+    window.setTimeout(function () {
+        if (!searchOptionsPanel.classList.contains('is-open')) {
+            searchOptionsPanel.hidden = true;
+        }
+    }, 280);
+}
+
+function toggleSearchFilterPanel(panel, button) {
+    if (!panel || !button) return;
+
+    const isOpen = panel.hidden;
+
+    panel.hidden = !isOpen;
+    button.setAttribute('aria-expanded', String(isOpen));
 }
 
 function setSearchSortMode(mode) {
     searchSortMode = mode;
+
+    if (mode === 'alpha-asc') {
+        searchAlphaSortDirection = 'asc';
+    } else if (mode === 'alpha-desc') {
+        searchAlphaSortDirection = 'desc';
+    } else if (mode === 'visible-first') {
+        searchVisibilitySortDirection = 'visible';
+    } else if (mode === 'hidden-first') {
+        searchVisibilitySortDirection = 'hidden';
+    }
+
     updateSearchSortButtons();
     renderSearchResults();
 }
@@ -480,9 +523,10 @@ function resetSearchSettings() {
 
     manuallyShownShipIds.clear();
     manuallyHiddenShipIds.clear();
+    searchVisibilitySortDirection = 'visible';
     setSearchSortMode('alpha-asc');
     setSearchOptionsOpen(false);
-    applyShipFilters();
+    resetFilterSettings();
     vesselSearchInput?.focus();
 }
 
@@ -666,18 +710,25 @@ function applyShipFilters() {
 }
 
 function resetFilterSettings() {
+    resetTypeFilterSettings();
+    resetCompanyFilterSettings();
+}
+
+function resetTypeFilterSettings() {
     activeTypeFilters.clear();
     knownTypeFilters.forEach(function (type) {
         activeTypeFilters.add(type);
     });
 
+    renderFilterOptions();
+    applyShipFilters();
+}
+
+function resetCompanyFilterSettings() {
     activeCompanyFilters.clear();
     knownCompanyFilters.forEach(function (company) {
         activeCompanyFilters.add(company);
     });
-
-    manuallyShownShipIds.clear();
-    manuallyHiddenShipIds.clear();
 
     renderFilterOptions();
     applyShipFilters();
@@ -1328,15 +1379,7 @@ closeViewMenuButton?.addEventListener('click', function () {
 });
 
 viewBackButton?.addEventListener('click', function () {
-    const isFilterDetailView =
-        viewFilterTypeView?.classList.contains('is-active') ||
-        viewFilterCompanyView?.classList.contains('is-active');
-
-    setViewMenuView(isFilterDetailView ? 'filter' : 'main');
-});
-
-filterMenuButton?.addEventListener('click', function () {
-    setViewMenuView('filter');
+    setViewMenuView('main');
 });
 
 advancedViewSettingsButton?.addEventListener('click', function () {
@@ -1344,14 +1387,16 @@ advancedViewSettingsButton?.addEventListener('click', function () {
 });
 
 filterTypeButton?.addEventListener('click', function () {
-    setViewMenuView('filter-type');
+    toggleSearchFilterPanel(searchFilterTypePanel, filterTypeButton);
 });
 
 filterCompanyButton?.addEventListener('click', function () {
-    setViewMenuView('filter-company');
+    toggleSearchFilterPanel(searchFilterCompanyPanel, filterCompanyButton);
 });
 
-resetFilterSettingsButton?.addEventListener('click', resetFilterSettings);
+resetTypeFilterButton?.addEventListener('click', resetTypeFilterSettings);
+
+resetCompanyFilterButton?.addEventListener('click', resetCompanyFilterSettings);
 
 resetAdvancedViewSettingsButton?.addEventListener(
     'click',
@@ -1372,20 +1417,18 @@ searchOptionsButton?.addEventListener('click', function () {
     setSearchOptionsOpen(searchOptionsPanel?.hidden ?? true);
 });
 
-searchSortAlphaAscButton?.addEventListener('click', function () {
-    setSearchSortMode('alpha-asc');
+searchSortAlphaToggle?.addEventListener('click', function () {
+    setSearchSortMode(
+        searchAlphaSortDirection === 'asc' ? 'alpha-desc' : 'alpha-asc'
+    );
 });
 
-searchSortAlphaDescButton?.addEventListener('click', function () {
-    setSearchSortMode('alpha-desc');
-});
-
-searchSortVisibleFirstButton?.addEventListener('click', function () {
-    setSearchSortMode('visible-first');
-});
-
-searchSortHiddenFirstButton?.addEventListener('click', function () {
-    setSearchSortMode('hidden-first');
+searchSortVisibilityToggle?.addEventListener('click', function () {
+    setSearchSortMode(
+        searchVisibilitySortDirection === 'visible' ?
+            'hidden-first' :
+            'visible-first'
+    );
 });
 
 resetSearchSettingsButton?.addEventListener('click', resetSearchSettings);
