@@ -1153,6 +1153,30 @@ canvas:active {
     transform: translate(12px, 12px);
 }
 
+.vessel-name-label {
+    display: none;
+    position: fixed;
+    z-index: 9;
+    pointer-events: none;
+
+    padding: 4px 8px;
+
+    color: #ebefff;
+    background: rgba(10, 14, 28, 0.74);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    transform: translate(-50%, -100%);
+}
+
 /* -----------------------------
    BOAT INFO PANEL
 ----------------------------- */
@@ -1485,6 +1509,7 @@ body.light-theme #datetime-widget,
 body.light-theme .compass-ring,
 body.light-theme .compass-degrees,
 body.light-theme #vessel-hover-label,
+body.light-theme .vessel-name-label,
 body.light-theme #boat-info-panel {
     color: #111827;
     background: rgba(255, 255, 255, 0.9);

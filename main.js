@@ -192,6 +192,7 @@ const closeControlsMenuButton = document.getElementById('close-controls-menu');
 const toggleWaterEffectsButton = document.getElementById('toggle-water-effects');
 const toggleLightDirectionButton = document.getElementById('toggle-light-direction');
 const toggleCompassButton = document.getElementById('toggle-compass');
+const toggleVesselNameLabelsButton = document.getElementById('toggle-vessel-name-labels');
 const compassWidget = document.querySelector('.compass-widget');
 const compassNeedle = document.getElementById('compass-needle');
 const compassCardinals = document.getElementById('compass-cardinals');
@@ -200,6 +201,7 @@ let trailsVisible = true;
 let waterEffectsEnabled = true;
 let lightDirectionEnabled = true;
 let compassVisible = true;
+let vesselNameLabelsVisible = false;
 let searchSortMode = 'alpha-asc';
 let searchAlphaSortDirection = 'asc';
 let searchVisibilitySortDirection = 'visible';
@@ -738,6 +740,7 @@ function resetAdvancedViewSettings() {
     setWaterEffectsEnabled(true);
     setLightDirectionEnabled(true);
     setCompassVisible(true);
+    setVesselNameLabelsVisible(false);
     setTrailsVisible(true);
 }
 
@@ -1257,6 +1260,19 @@ function updateCompassButton() {
     toggleCompassButton.classList.toggle('is-off', !compassVisible);
 }
 
+function updateVesselNameLabelsButton() {
+    if (!toggleVesselNameLabelsButton) return;
+
+    toggleVesselNameLabelsButton.setAttribute(
+        'aria-pressed',
+        String(vesselNameLabelsVisible)
+    );
+    toggleVesselNameLabelsButton.classList.toggle(
+        'is-off',
+        !vesselNameLabelsVisible
+    );
+}
+
 function setWaterEffectsEnabled(enabled) {
     waterEffectsEnabled = enabled;
     water.visible = waterEffectsEnabled;
@@ -1282,6 +1298,15 @@ function setCompassVisible(isVisible) {
     }
 
     updateCompassButton();
+}
+
+function setVesselNameLabelsVisible(isVisible) {
+    vesselNameLabelsVisible = isVisible;
+    updateVesselNameLabelsButton();
+
+    if (!vesselNameLabelsVisible) {
+        hideVesselNameLabels();
+    }
 }
 
 const lightThemeIcon = '<svg class="controls-menu-icon lucide lucide-sun-icon lucide-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
@@ -1463,6 +1488,10 @@ if (toggleCompassButton) {
     });
 }
 
+toggleVesselNameLabelsButton?.addEventListener('click', function () {
+    setVesselNameLabelsVisible(!vesselNameLabelsVisible);
+});
+
 window.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
         setControlsMenuOpen(false);
@@ -1474,6 +1503,7 @@ window.addEventListener('keydown', function (event) {
 updateWaterEffectsButton();
 updateLightDirectionButton();
 updateCompassButton();
+updateVesselNameLabelsButton();
 updateSearchSortButtons();
 setLightTheme(localStorage.getItem('port-ui-theme') === 'light');
 // -----------------------------
@@ -1988,9 +2018,63 @@ const vesselHoverDelay = 500;
 let hoveredShip = null;
 let hoverTimeout = null;
 let latestHoverEvent = null;
+const vesselNameLabelPosition = new THREE.Vector3();
+const vesselNameLabelOffset = new THREE.Vector3(0, 18, 0);
+const vesselNameLabels = new Map();
 
 function setCanvasCursor(cursor) {
     renderer.domElement.style.cursor = cursor;
+}
+
+function getVesselNameLabel(ship) {
+    if (vesselNameLabels.has(ship)) {
+        return vesselNameLabels.get(ship);
+    }
+
+    const label = document.createElement('div');
+
+    label.className = 'vessel-name-label';
+    label.textContent = ship.details.name;
+    document.body.appendChild(label);
+
+    vesselNameLabels.set(ship, label);
+
+    return label;
+}
+
+function hideVesselNameLabels() {
+    vesselNameLabels.forEach(function (label) {
+        label.style.display = 'none';
+    });
+}
+
+function updateVesselNameLabels() {
+    if (!vesselNameLabelsVisible) return;
+
+    ships.forEach(function (ship) {
+        const label = getVesselNameLabel(ship);
+
+        if (ship.isFilteredVisible === false) {
+            label.style.display = 'none';
+            return;
+        }
+
+        vesselNameLabelPosition
+            .copy(getShipCenter(ship))
+            .add(vesselNameLabelOffset)
+            .project(camera);
+
+        if (vesselNameLabelPosition.z < -1 || vesselNameLabelPosition.z > 1) {
+            label.style.display = 'none';
+            return;
+        }
+
+        label.style.display = 'block';
+        label.style.left =
+            `${(vesselNameLabelPosition.x * 0.5 + 0.5) * window.innerWidth}px`;
+        label.style.top =
+            `${(-vesselNameLabelPosition.y * 0.5 + 0.5) * window.innerHeight}px`;
+    });
 }
 
 function clearHoverTimer() {
@@ -2303,6 +2387,7 @@ function animate() {
 
     controls.update();
     updateCompass();
+    updateVesselNameLabels();
 
     renderer.render(scene, camera);
 
