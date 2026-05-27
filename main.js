@@ -380,8 +380,8 @@ function createSearchResult(ship) {
     const company = document.createElement('span');
     const type = document.createElement('span');
     const isVisible = ship.isFilteredVisible !== false;
-    const isTrailVisible = !manuallyHiddenTrailShipIds.has(ship.details.id);
-    const isNameVisible = isShipNameLabelVisible(ship);
+    const isTrailVisible = isVisible && isShipTrailVisible(ship);
+    const isNameVisible = isVisible && isShipNameLabelVisible(ship);
 
     row.className = 'search-result-row';
     row.classList.toggle('is-hidden-vessel', !isVisible);
@@ -391,12 +391,15 @@ function createSearchResult(ship) {
     optionsGroup.className = 'search-result-inline-options';
     visibilityButton.className = 'search-result-option-button';
     visibilityButton.type = 'button';
+    visibilityButton.classList.toggle('is-off', !isVisible);
     visibilityButton.innerHTML = `${isVisible ? visibleSearchIcon : hiddenSearchIcon}`;
     trailButton.className = 'search-result-option-button';
     trailButton.type = 'button';
+    trailButton.classList.toggle('is-off', !isTrailVisible);
     trailButton.innerHTML = `${isTrailVisible ? visibleTrailIcon : hiddenTrailIcon}`;
     nameButton.className = 'search-result-option-button';
     nameButton.type = 'button';
+    nameButton.classList.toggle('is-off', !isNameVisible);
     nameButton.innerHTML = `${isNameVisible ? visibleNameIcon : hiddenNameIcon}`;
     visibilityButton.setAttribute(
         'aria-label',
@@ -612,6 +615,20 @@ function getShipSearchSortValue(ship, column) {
     return ship.details.name;
 }
 
+function isSearchActionSortColumn(column) {
+    return column === 'visible' || column === 'trail' || column === 'label';
+}
+
+function getShipSearchActionSortValue(ship, column) {
+    if (column === 'visible') return isShipVisible(ship);
+    if (column === 'trail') return isShipTrailVisible(ship);
+    if (column === 'label') {
+        return ship.isFilteredVisible !== false && isShipNameLabelVisible(ship);
+    }
+
+    return false;
+}
+
 function resetSearchSettings() {
     if (vesselSearchInput) {
         vesselSearchInput.value = '';
@@ -651,11 +668,20 @@ function renderSearchResults() {
             return ship.details.name.toLowerCase().includes(query);
         })
         .sort(function (a, b) {
+            const fallbackSort = a.details.name.localeCompare(b.details.name);
             const aValue = getShipSearchSortValue(a, searchSortColumn);
             const bValue = getShipSearchSortValue(b, searchSortColumn);
-            const primarySort = aValue.localeCompare(bValue);
-            const fallbackSort = a.details.name.localeCompare(b.details.name);
             const direction = searchSortDirection === 'asc' ? 1 : -1;
+
+            if (isSearchActionSortColumn(searchSortColumn)) {
+                const aActive = getShipSearchActionSortValue(a, searchSortColumn);
+                const bActive = getShipSearchActionSortValue(b, searchSortColumn);
+                const primarySort = Number(bActive) - Number(aActive);
+
+                return (primarySort || fallbackSort) * direction;
+            }
+
+            const primarySort = aValue.localeCompare(bValue);
 
             return (primarySort || fallbackSort) * direction;
         });

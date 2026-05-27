@@ -213,8 +213,8 @@ canvas:active {
     padding: 8px;
     --search-list-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 0.72fr);
     --search-action-width: 34px;
-    --search-action-columns-width: 96px;
-    --search-action-columns: repeat(3, 30px);
+    --search-action-columns-width: 160px;
+    --search-action-columns: repeat(3, 42px);
     --search-scrollbar-width: 8px;
 }
 
@@ -713,13 +713,24 @@ canvas:active {
 
 .search-filter-panel {
     display: grid;
-    gap: 3px;
+    gap: 5px;
 
     padding: 2px 0 6px;
 }
 
 .search-filter-panel[hidden] {
     display: none;
+}
+
+.search-filter-title {
+    padding: 2px 4px 1px;
+
+    color: rgba(235, 239, 255, 0.68);
+
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: uppercase;
 }
 
 .search-results {
@@ -787,7 +798,7 @@ canvas:active {
 
 .search-results-header-actions {
     display: grid;
-    grid-template-columns: 34px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 34px;
     align-items: center;
 
     width: var(--search-action-width);
@@ -797,8 +808,70 @@ canvas:active {
     border-left: 1px solid rgba(255, 255, 255, 0.075);
 }
 
+.search-action-column-labels {
+    display: none;
+    grid-column: 1;
+    grid-row: 1;
+    grid-template-columns: var(--search-action-columns);
+    align-items: center;
+    justify-content: start;
+
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+
+    border-left: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+.search-menu.has-search-actions .search-action-column-labels {
+    display: grid;
+}
+
+.search-action-column-labels button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 0;
+    height: 100%;
+    padding: 0 5px;
+    overflow: hidden;
+
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.055);
+
+    font: inherit;
+    font-size: 9px;
+    line-height: 1;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    cursor: pointer;
+
+    transition: color 0.18s ease;
+}
+
+.search-action-column-labels button:hover,
+.search-action-column-labels button.is-active {
+    color: #ebefff;
+}
+
+.search-action-column-labels button:focus-visible {
+    outline: 2px solid rgba(111, 168, 255, 0.9);
+    outline-offset: -2px;
+}
+
+.search-action-column-labels button:last-child {
+    border-right: 0;
+}
+
 .search-action-columns-toggle {
     display: inline-flex;
+    grid-column: 2;
+    grid-row: 1;
     align-items: center;
     justify-content: center;
 
@@ -851,7 +924,7 @@ canvas:active {
     height: 100%;
     padding: 0 8px 0 14px;
 
-    color: inherit;
+    color: #ebefff;
     background: transparent;
     border: 0;
 
@@ -894,7 +967,7 @@ canvas:active {
     height: 100%;
     padding: 0;
 
-    color: inherit;
+    color: #ebefff;
     background: transparent;
     border: 0;
 
@@ -908,7 +981,7 @@ canvas:active {
     height: 16px;
     flex: 0 0 auto;
 
-    color: currentColor;
+    color: rgba(235, 239, 255, 0.48);
     opacity: 0.62;
 }
 
@@ -987,8 +1060,8 @@ canvas:active {
 }
 
 .search-result-row.is-hidden-vessel {
-    color: rgba(235, 239, 255, 0.44);
-    opacity: 0.62;
+    color: #ebefff;
+    opacity: 1;
 }
 
 .search-result-row:hover {
@@ -1054,14 +1127,16 @@ canvas:active {
 .search-result-inline-options {
     display: none;
     grid-auto-flow: column;
-    grid-auto-columns: 30px;
+    grid-auto-columns: 42px;
     align-items: center;
-    justify-content: end;
+    justify-content: start;
 
     min-width: 0;
     height: 100%;
 
     overflow: hidden;
+
+    border-left: 1px solid rgba(255, 255, 255, 0.055);
 }
 
 .search-menu.has-search-actions .search-result-inline-options {
@@ -1073,8 +1148,8 @@ canvas:active {
     align-items: center;
     justify-content: center;
 
-    width: 30px;
-    min-width: 30px;
+    width: 42px;
+    min-width: 42px;
     min-height: 34px;
     padding: 0;
 
@@ -1091,8 +1166,18 @@ canvas:active {
     cursor: pointer;
 }
 
+.search-result-option-button.is-off {
+    color: rgba(235, 239, 255, 0.42);
+}
+
+.search-result-row.is-hidden-vessel .search-result-option-button {
+    color: rgba(235, 239, 255, 0.44);
+    opacity: 0.62;
+}
+
 .search-result-option-button:hover {
     background: rgba(111, 168, 255, 0.095);
+    opacity: 1;
 }
 
 .search-result-option-button span {
@@ -1117,7 +1202,7 @@ canvas:active {
 .search-result-company,
 .search-result-type,
 .search-empty {
-    color: rgba(235, 239, 255, 0.58);
+    color: #ebefff;
 
     font-size: 12px;
     font-weight: 600;
@@ -1812,6 +1897,7 @@ body.light-theme .boat-card-toggle:hover {
 
 body.light-theme .filter-category-count,
 body.light-theme .filter-section-title,
+body.light-theme .search-filter-title,
 body.light-theme .settings-empty-state,
 body.light-theme .search-results-header,
 body.light-theme .search-result-company,
@@ -1878,13 +1964,21 @@ body.light-theme .search-header-filter-button.is-active {
     color: #111827;
 }
 
+body.light-theme .search-header-sort,
+body.light-theme .search-header-filter-button {
+    color: #111827;
+}
+
+body.light-theme .search-header-sort-icon {
+    color: rgba(17, 24, 39, 0.42);
+}
+
 body.light-theme .search-header-cell {
     border-right-color: rgba(17, 24, 39, 0.075);
 }
 
-body.light-theme .search-results-header-actions,
-body.light-theme {
-    border-color: rgba(17, 24, 39, 0.075);
+body.light-theme .search-results-header-actions {
+    border-left-color: rgba(17, 24, 39, 0.075);
 }
 
 body.light-theme .search-result-content > span {
@@ -1905,7 +1999,7 @@ body.light-theme .search-results::-webkit-scrollbar-thumb {
 }
 
 body.light-theme .search-result-row.is-hidden-vessel {
-    color: rgba(17, 24, 39, 0.42);
+    color: #111827;
 }
 
 body.light-theme .search-result-option-button {
@@ -1913,8 +2007,26 @@ body.light-theme .search-result-option-button {
     border-color: rgba(17, 24, 39, 0.08);
 }
 
+body.light-theme .search-result-option-button.is-off {
+    color: rgba(17, 24, 39, 0.4);
+}
+
+body.light-theme .search-result-row.is-hidden-vessel .search-result-option-button {
+    color: rgba(17, 24, 39, 0.42);
+}
+
 body.light-theme .search-result-inline-options {
     border-color: rgba(17, 24, 39, 0.08);
+}
+
+body.light-theme .search-action-column-labels,
+body.light-theme .search-action-column-labels button {
+    border-color: rgba(17, 24, 39, 0.08);
+}
+
+body.light-theme .search-action-column-labels button:hover,
+body.light-theme .search-action-column-labels button.is-active {
+    color: #111827;
 }
 
 body.light-theme .filter-option input {

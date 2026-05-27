@@ -58,9 +58,11 @@
                 </div>
                 <div class="search-options-panel" id="search-options-panel" hidden>
                     <div class="search-filter-panel" id="search-filter-type-panel" hidden>
+                        <div class="search-filter-title">Filter by type</div>
                         <div class="filter-options" id="filter-type-options"></div>
                     </div>
                     <div class="search-filter-panel" id="search-filter-company-panel" hidden>
+                        <div class="search-filter-title">Filter by company</div>
                         <div class="filter-options" id="filter-company-options"></div>
                     </div>
                 </div>
@@ -98,6 +100,11 @@
                         <button class="search-action-columns-toggle" id="search-action-columns-toggle" type="button" aria-expanded="false" aria-label="Show vessel action columns">
                             <svg class="search-result-toggle-icon lucide lucide-funnel-plus-icon lucide-funnel-plus" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.354 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14v6a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341l1.218-1.348"/><path d="M16 6h6"/><path d="M19 3v6"/></svg>
                         </button>
+                        <div class="search-action-column-labels">
+                            <button type="button" data-search-sort="visible" aria-sort="none">Visible</button>
+                            <button type="button" data-search-sort="trail" aria-sort="none">Trail</button>
+                            <button type="button" data-search-sort="label" aria-sort="none">Name</button>
+                        </div>
                     </div>
                     <span class="search-results-header-gutter" aria-hidden="true"></span>
                 </div>
