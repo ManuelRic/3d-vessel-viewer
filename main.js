@@ -1881,6 +1881,12 @@ function getShipUnderMouse(event) {
     });
 }
 
+function isPointerOverInterface(event) {
+    return Boolean(event.target.closest(
+        '.icon-container, #boat-info-panel, #datetime-widget, .compass-widget'
+    ));
+}
+
 // -----------------------------
 // BOAT CENTER
 // -----------------------------
@@ -1900,6 +1906,8 @@ function getShipCenter(ship) {
 // CLICK HANDLER
 // -----------------------------
 window.addEventListener('click', function (event) {
+    if (isPointerOverInterface(event)) return;
+
     if (suppressNextClick) {
         suppressNextClick = false;
         if (suppressClickTimeout) {
@@ -1929,6 +1937,7 @@ window.addEventListener('click', function (event) {
 });
 
 window.addEventListener('dblclick', function (event) {
+    if (isPointerOverInterface(event)) return;
 
     const clickedShip = getShipUnderMouse(event);
 
@@ -2007,6 +2016,15 @@ function showVesselHoverLabel(ship, event) {
 }
 
 function updateVesselHover(event) {
+    if (isPointerOverInterface(event)) {
+        setCanvasCursor('grab');
+        hoveredShip = null;
+        latestHoverEvent = null;
+        clearHoverTimer();
+        hideVesselHoverLabel();
+        return;
+    }
+
     if (isCameraDragging) {
         setCanvasCursor('grabbing');
         clearHoverTimer();
