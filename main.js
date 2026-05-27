@@ -938,6 +938,8 @@ let pendingShiftRightLookDelta = new THREE.Vector2();
 let isCameraDragging = false;
 let suppressNextClick = false;
 let suppressClickTimeout = null;
+let singleClickTimeout = null;
+const singleClickDelay = 230;
 
 function setLeftMouseAction(action) {
     controls.mouseButtons = {
@@ -1935,6 +1937,27 @@ function getShipCenter(ship) {
 // -----------------------------
 // CLICK HANDLER
 // -----------------------------
+function clearPendingSingleClick() {
+    if (!singleClickTimeout) return;
+
+    clearTimeout(singleClickTimeout);
+    singleClickTimeout = null;
+}
+
+function handleShipSingleClick(clickedShip) {
+    clearHoverTimer();
+    hideVesselHoverLabel();
+
+    if (selectedShip === clickedShip) {
+        selectedShip = null;
+        hideBoatDetails();
+        return;
+    }
+
+    selectedShip = clickedShip;
+    showBoatDetails(clickedShip.details);
+}
+
 window.addEventListener('click', function (event) {
     if (isPointerOverInterface(event)) return;
 
@@ -1951,23 +1974,17 @@ window.addEventListener('click', function (event) {
 
     if (!clickedShip) return;
 
-    clearHoverTimer();
-    hideVesselHoverLabel();
-
-     if (selectedShip === clickedShip) {
-        selectedShip = null;
-
-        hideBoatDetails();
-        return;
-    }
-
-    selectedShip = clickedShip;
-
-    showBoatDetails(clickedShip.details);
+    clearPendingSingleClick();
+    singleClickTimeout = setTimeout(function () {
+        singleClickTimeout = null;
+        handleShipSingleClick(clickedShip);
+    }, singleClickDelay);
 });
 
 window.addEventListener('dblclick', function (event) {
     if (isPointerOverInterface(event)) return;
+
+    clearPendingSingleClick();
 
     const clickedShip = getShipUnderMouse(event);
 
