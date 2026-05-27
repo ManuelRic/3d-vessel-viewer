@@ -151,7 +151,6 @@ const closeSearchMenuButton = document.getElementById('close-search-menu');
 const vesselSearchInput = document.getElementById('vessel-search-input');
 const vesselSearchClearButton = document.getElementById('vessel-search-clear');
 const vesselSearchResults = document.getElementById('vessel-search-results');
-const searchOptionsButton = document.getElementById('search-options-button');
 const searchOptionsPanel = document.getElementById('search-options-panel');
 const searchActionColumnsToggle = document.getElementById('search-action-columns-toggle');
 const searchSortButtons = document.querySelectorAll('[data-search-sort]');
@@ -547,10 +546,7 @@ function setSearchActionColumnsVisible(isVisible) {
 }
 
 function setSearchOptionsOpen(isOpen) {
-    if (!searchOptionsButton || !searchOptionsPanel) return;
-
-    searchOptionsButton.classList.toggle('is-active', isOpen);
-    searchOptionsButton.setAttribute('aria-expanded', String(isOpen));
+    if (!searchOptionsPanel) return;
 
     if (isOpen) {
         searchOptionsPanel.hidden = false;
@@ -560,6 +556,8 @@ function setSearchOptionsOpen(isOpen) {
         return;
     }
 
+    setSearchFilterPanelOpen(searchFilterTypePanel, filterTypeButton, false);
+    setSearchFilterPanelOpen(searchFilterCompanyPanel, filterCompanyButton, false);
     searchOptionsPanel.classList.remove('is-open');
     window.setTimeout(function () {
         if (!searchOptionsPanel.classList.contains('is-open')) {
@@ -568,13 +566,28 @@ function setSearchOptionsOpen(isOpen) {
     }, 280);
 }
 
+function setSearchFilterPanelOpen(panel, button, isOpen) {
+    if (!panel || !button) return;
+
+    panel.hidden = !isOpen;
+    button.setAttribute('aria-expanded', String(isOpen));
+    button.classList.toggle('is-active', isOpen);
+}
+
 function toggleSearchFilterPanel(panel, button) {
     if (!panel || !button) return;
 
     const isOpen = panel.hidden;
+    const otherPanel = panel === searchFilterTypePanel ?
+        searchFilterCompanyPanel :
+        searchFilterTypePanel;
+    const otherButton = button === filterTypeButton ?
+        filterCompanyButton :
+        filterTypeButton;
 
-    panel.hidden = !isOpen;
-    button.setAttribute('aria-expanded', String(isOpen));
+    setSearchFilterPanelOpen(otherPanel, otherButton, false);
+    setSearchFilterPanelOpen(panel, button, isOpen);
+    setSearchOptionsOpen(isOpen);
 }
 
 function setSearchSortColumn(column) {
@@ -585,6 +598,9 @@ function setSearchSortColumn(column) {
         searchSortDirection = 'asc';
     }
 
+    document
+        .querySelector(`[data-search-sort="${column}"]`)
+        ?.setAttribute('data-sort-direction', searchSortDirection);
     updateSearchSortButtons();
     renderSearchResults();
 }
@@ -608,6 +624,9 @@ function resetSearchSettings() {
     manuallyHiddenNameShipIds.clear();
     searchSortColumn = 'name';
     searchSortDirection = 'asc';
+    searchSortButtons.forEach(function (button) {
+        button.setAttribute('data-sort-direction', 'asc');
+    });
     updateSearchSortButtons();
     setSearchActionColumnsVisible(false);
     renderSearchResults();
@@ -1518,10 +1537,6 @@ vesselSearchClearButton?.addEventListener('click', function () {
     vesselSearchInput.value = '';
     renderSearchResults();
     vesselSearchInput.focus();
-});
-
-searchOptionsButton?.addEventListener('click', function () {
-    setSearchOptionsOpen(searchOptionsPanel?.hidden ?? true);
 });
 
 searchActionColumnsToggle?.addEventListener('click', function () {

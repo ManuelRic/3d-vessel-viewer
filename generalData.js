@@ -17,7 +17,6 @@ export function initDateTimeWidget(){
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
-        fractionalSecondDigits: 3,
         hour12: false
     });
     const portOffsetFormatter = new Intl.DateTimeFormat('en-US', {
@@ -57,9 +56,8 @@ export function initDateTimeWidget(){
             getPart(parts, 'minute'),
             getPart(parts, 'second')
         ].join(':');
-        const fractionalSecond = getPart(parts, 'fractionalSecond');
 
-        return `${datePart}T${timePart}.${fractionalSecond}${getPortOffset(date)}`;
+        return `${datePart}T${timePart}${getPortOffset(date)}`;
     }
 
     function updateDateTimeWidget() {

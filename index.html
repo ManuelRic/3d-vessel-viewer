@@ -37,6 +37,125 @@
         </div>
     </div>
     <div class="icon-container">
+                <div class="search-menu-wrapper">
+            <button class="control-button" id="search-button" type="button" aria-expanded="false" aria-controls="search-menu">
+                <svg class="control-button-svg lucide lucide-search-icon lucide-search" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+            </button>
+            <div class="search-menu" id="search-menu" aria-hidden="true">
+                <div class="search-menu-header">
+                    <span class="search-menu-title">Search vessels</span>
+                    <button class="search-menu-close" id="close-search-menu" type="button">
+                        <svg class="search-menu-close-icon lucide lucide-x-icon lucide-x" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+                <div class="search-input-row">
+                    <div class="search-input-wrapper">
+                        <input class="search-input" id="vessel-search-input" type="search" placeholder="Vessel name" autocomplete="off">
+                        <button class="search-input-clear" id="vessel-search-clear" type="button" aria-label="Clear vessel search" hidden>
+                            <svg class="search-input-clear-icon lucide lucide-x-icon lucide-x" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="search-options-panel" id="search-options-panel" hidden>
+                    <div class="search-filter-panel" id="search-filter-type-panel" hidden>
+                        <div class="filter-options" id="filter-type-options"></div>
+                    </div>
+                    <div class="search-filter-panel" id="search-filter-company-panel" hidden>
+                        <div class="filter-options" id="filter-company-options"></div>
+                    </div>
+                </div>
+                <div class="search-results-header">
+                    <div class="search-results-header-content">
+                        <div class="search-header-cell">
+                            <button class="search-header-sort is-active" id="search-sort-name" type="button" data-search-sort="name" data-sort-direction="asc" aria-sort="ascending">
+                                <span>Name</span>
+                                <svg class="search-header-sort-icon search-header-sort-icon-asc lucide lucide-arrow-down-az-icon lucide-arrow-down-a-z" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="M20 8h-5"/><path d="M15 10V6.5a2.5 2.5 0 0 1 5 0V10"/><path d="M15 14h5l-5 6h5"/></svg>
+                                <svg class="search-header-sort-icon search-header-sort-icon-desc lucide lucide-arrow-down-za-icon lucide-arrow-down-z-a" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 16 4 4 4-4"/><path d="M7 4v16"/><path d="M15 4h5l-5 6h5"/><path d="M15 20v-3.5a2.5 2.5 0 0 1 5 0V20"/><path d="M20 18h-5"/></svg>
+                            </button>
+                        </div>
+                        <div class="search-header-cell">
+                            <button class="search-header-sort" id="search-sort-company" type="button" data-search-sort="company" data-sort-direction="asc" aria-sort="none">
+                                <span>Company</span>
+                                <svg class="search-header-sort-icon search-header-sort-icon-asc lucide lucide-arrow-down-az-icon lucide-arrow-down-a-z" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="M20 8h-5"/><path d="M15 10V6.5a2.5 2.5 0 0 1 5 0V10"/><path d="M15 14h5l-5 6h5"/></svg>
+                                <svg class="search-header-sort-icon search-header-sort-icon-desc lucide lucide-arrow-down-za-icon lucide-arrow-down-z-a" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 16 4 4 4-4"/><path d="M7 4v16"/><path d="M15 4h5l-5 6h5"/><path d="M15 20v-3.5a2.5 2.5 0 0 1 5 0V20"/><path d="M20 18h-5"/></svg>
+                            </button>
+                            <button class="search-header-filter-button" id="filter-company-button" type="button" aria-expanded="false" aria-controls="search-filter-company-panel" aria-label="Filter by company">
+                                <svg class="search-header-filter-icon lucide lucide-funnel-icon lucide-funnel" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"/></svg>
+                            </button>
+                        </div>
+                        <div class="search-header-cell">
+                            <button class="search-header-sort" id="search-sort-type" type="button" data-search-sort="type" data-sort-direction="asc" aria-sort="none">
+                                <span>Type</span>
+                                <svg class="search-header-sort-icon search-header-sort-icon-asc lucide lucide-arrow-down-az-icon lucide-arrow-down-a-z" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="M20 8h-5"/><path d="M15 10V6.5a2.5 2.5 0 0 1 5 0V10"/><path d="M15 14h5l-5 6h5"/></svg>
+                                <svg class="search-header-sort-icon search-header-sort-icon-desc lucide lucide-arrow-down-za-icon lucide-arrow-down-z-a" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 16 4 4 4-4"/><path d="M7 4v16"/><path d="M15 4h5l-5 6h5"/><path d="M15 20v-3.5a2.5 2.5 0 0 1 5 0V20"/><path d="M20 18h-5"/></svg>
+                            </button>
+                            <button class="search-header-filter-button" id="filter-type-button" type="button" aria-expanded="false" aria-controls="search-filter-type-panel" aria-label="Filter by type">
+                                <svg class="search-header-filter-icon lucide lucide-funnel-icon lucide-funnel" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="search-results-header-actions">
+                        <button class="search-action-columns-toggle" id="search-action-columns-toggle" type="button" aria-expanded="false" aria-label="Show vessel action columns">
+                            <svg class="search-result-toggle-icon lucide lucide-funnel-plus-icon lucide-funnel-plus" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.354 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14v6a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341l1.218-1.348"/><path d="M16 6h6"/><path d="M19 3v6"/></svg>
+                        </button>
+                    </div>
+                    <span class="search-results-header-gutter" aria-hidden="true"></span>
+                </div>
+                <div class="search-results" id="vessel-search-results"></div>
+            </div>
+        </div>
+                <div class="view-menu-wrapper">
+            <button class="control-button" id="view-menu-button" type="button" aria-expanded="false" aria-controls="view-menu">
+                <svg class="control-button-svg lucide lucide-eye-icon lucide-eye" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+            <div class="view-menu" id="view-menu" aria-hidden="true">
+                <div class="view-menu-header">
+                    <button class="view-menu-back" id="view-back-button" type="button" aria-hidden="true">
+                        <svg class="view-menu-back-icon lucide lucide-undo2-icon lucide-undo-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
+                    </button>
+                    <span class="view-menu-title">View</span>
+                    <button class="view-menu-close" id="close-view-menu" type="button">
+                        <svg class="view-menu-close-icon lucide lucide-x-icon lucide-x" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+                <div class="view-menu-view is-active" id="view-main-view">
+                    <button class="controls-menu-item" id="top-view-button" type="button" aria-pressed="false">
+                        <svg class="controls-menu-icon lucide lucide-binoculars-icon lucide-binoculars" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 10h4"/><path d="M19 7V4a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3"/><path d="M20 21a2 2 0 0 0 2-2v-3.851c0-1.39-2-2.962-2-4.829V8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2z"/><path d="M 22 16 L 2 16"/><path d="M4 21a2 2 0 0 1-2-2v-3.851c0-1.39 2-2.962 2-4.829V8a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v11a2 2 0 0 1-2 2z"/><path d="M9 7V4a1 1 0 0 0-1-1H6a1 1 0 0 0-1 1v3"/></svg>
+                        <span>Top view</span>
+                    </button>
+                    <button class="controls-menu-item" id="advanced-view-settings-button" type="button">
+                        <svg class="controls-menu-icon lucide lucide-monitor-cog-icon lucide-monitor-cog" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v4"/><path d="m14.305 7.53.923-.382"/><path d="m15.228 4.852-.923-.383"/><path d="m16.852 3.228-.383-.924"/><path d="m16.852 8.772-.383.923"/><path d="m19.148 3.228.383-.924"/><path d="m19.53 9.696-.382-.924"/><path d="m20.772 4.852.924-.383"/><path d="m20.772 7.148.924.383"/><path d="M22 13v2a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"/><path d="M8 21h8"/><circle cx="18" cy="6" r="3"/></svg>
+                        <span>Advanced settings</span>
+                    </button>
+                </div>
+                <div class="view-menu-view" id="view-advanced-settings-view">
+                    <button class="controls-menu-item" id="toggle-water-effects" type="button" aria-pressed="true">
+                        <svg class="controls-menu-icon lucide lucide-waves-horizontal-icon lucide-waves-horizontal" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12q2.5 2 5 0t5 0 5 0 5 0"/><path d="M2 19q2.5 2 5 0t5 0 5 0 5 0"/><path d="M2 5q2.5 2 5 0t5 0 5 0 5 0"/></svg>
+                        <span>Water texture</span>
+                    </button>
+                    <button class="controls-menu-item" id="toggle-light-direction" type="button" aria-pressed="true">
+                        <svg class="controls-menu-icon lucide lucide-sun-medium-icon lucide-sun-medium" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v1"/><path d="M12 20v1"/><path d="M3 12h1"/><path d="M20 12h1"/><path d="m18.364 5.636-.707.707"/><path d="m6.343 17.657-.707.707"/><path d="m5.636 5.636.707.707"/><path d="m17.657 17.657.707.707"/></svg>
+                        <span>Light direction</span>
+                    </button>
+                    <button class="controls-menu-item" id="toggle-compass" type="button" aria-pressed="true">
+                        <svg class="controls-menu-icon lucide lucide-compass-icon lucide-compass" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"/></svg>
+                        <span>Compass</span>
+                    </button>
+                    <button class="controls-menu-item" id="toggle-vessel-name-labels" type="button" aria-pressed="false">
+                        <svg class="search-result-toggle-icon lucide lucide-tag-icon lucide-tag" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: scaleX(-1);"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+                        <span>Vessel name always on</span>
+                    </button>
+                    <button class="controls-menu-item" id="toggle-trail" type="button" aria-pressed="true">
+                        <svg class="controls-menu-icon lucide lucide-line-squiggle-icon lucide-line-squiggle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.5c5-2 7 2.5 3 4C1.5 10 2 15 5 16c5 2 9-10 14-7s.5 13.5-4 12c-5-2.5.5-11 6-2"/></svg>
+                        <span>Trails</span>
+                    </button>
+                    <button class="controls-menu-item reset-menu-item" id="reset-advanced-view-settings" type="button">
+                        <svg class="controls-menu-icon lucide lucide-rotate-ccw-icon lucide-rotate-ccw" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                        <span>Restore defaults</span>
+                    </button>
+                </div>
+            </div>
+        </div>
         <div class="control-menu-wrapper">
             <button class="control-button" id="settings" type="button" aria-expanded="false" aria-controls="controls-menu">
                 <svg class="control-button-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>
@@ -97,134 +216,6 @@
                         <span>Scroll to zoom the camera in or out</span>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="view-menu-wrapper">
-            <button class="control-button" id="view-menu-button" type="button" aria-expanded="false" aria-controls="view-menu">
-                <svg class="control-button-svg lucide lucide-eye-icon lucide-eye" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-            <div class="view-menu" id="view-menu" aria-hidden="true">
-                <div class="view-menu-header">
-                    <button class="view-menu-back" id="view-back-button" type="button" aria-hidden="true">
-                        <svg class="view-menu-back-icon lucide lucide-undo2-icon lucide-undo-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
-                    </button>
-                    <span class="view-menu-title">View</span>
-                    <button class="view-menu-close" id="close-view-menu" type="button">
-                        <svg class="view-menu-close-icon lucide lucide-x-icon lucide-x" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                    </button>
-                </div>
-                <div class="view-menu-view is-active" id="view-main-view">
-                    <button class="controls-menu-item" id="top-view-button" type="button" aria-pressed="false">
-                        <svg class="controls-menu-icon lucide lucide-binoculars-icon lucide-binoculars" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 10h4"/><path d="M19 7V4a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3"/><path d="M20 21a2 2 0 0 0 2-2v-3.851c0-1.39-2-2.962-2-4.829V8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2z"/><path d="M 22 16 L 2 16"/><path d="M4 21a2 2 0 0 1-2-2v-3.851c0-1.39 2-2.962 2-4.829V8a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v11a2 2 0 0 1-2 2z"/><path d="M9 7V4a1 1 0 0 0-1-1H6a1 1 0 0 0-1 1v3"/></svg>
-                        <span>Top view</span>
-                    </button>
-                    <button class="controls-menu-item" id="advanced-view-settings-button" type="button">
-                        <svg class="controls-menu-icon lucide lucide-monitor-cog-icon lucide-monitor-cog" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v4"/><path d="m14.305 7.53.923-.382"/><path d="m15.228 4.852-.923-.383"/><path d="m16.852 3.228-.383-.924"/><path d="m16.852 8.772-.383.923"/><path d="m19.148 3.228.383-.924"/><path d="m19.53 9.696-.382-.924"/><path d="m20.772 4.852.924-.383"/><path d="m20.772 7.148.924.383"/><path d="M22 13v2a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"/><path d="M8 21h8"/><circle cx="18" cy="6" r="3"/></svg>
-                        <span>Advanced settings</span>
-                    </button>
-                </div>
-                <div class="view-menu-view" id="view-advanced-settings-view">
-                    <button class="controls-menu-item" id="toggle-water-effects" type="button" aria-pressed="true">
-                        <svg class="controls-menu-icon lucide lucide-waves-horizontal-icon lucide-waves-horizontal" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12q2.5 2 5 0t5 0 5 0 5 0"/><path d="M2 19q2.5 2 5 0t5 0 5 0 5 0"/><path d="M2 5q2.5 2 5 0t5 0 5 0 5 0"/></svg>
-                        <span>Water texture</span>
-                    </button>
-                    <button class="controls-menu-item" id="toggle-light-direction" type="button" aria-pressed="true">
-                        <svg class="controls-menu-icon lucide lucide-sun-medium-icon lucide-sun-medium" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v1"/><path d="M12 20v1"/><path d="M3 12h1"/><path d="M20 12h1"/><path d="m18.364 5.636-.707.707"/><path d="m6.343 17.657-.707.707"/><path d="m5.636 5.636.707.707"/><path d="m17.657 17.657.707.707"/></svg>
-                        <span>Light direction</span>
-                    </button>
-                    <button class="controls-menu-item" id="toggle-compass" type="button" aria-pressed="true">
-                        <svg class="controls-menu-icon lucide lucide-compass-icon lucide-compass" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"/></svg>
-                        <span>Compass</span>
-                    </button>
-                    <button class="controls-menu-item" id="toggle-vessel-name-labels" type="button" aria-pressed="false">
-                        <svg class="search-result-toggle-icon lucide lucide-tag-icon lucide-tag" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: scaleX(-1);"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg>
-                        <span>Vessel name always on</span>
-                    </button>
-                    <button class="controls-menu-item" id="toggle-trail" type="button" aria-pressed="true">
-                        <svg class="controls-menu-icon lucide lucide-line-squiggle-icon lucide-line-squiggle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.5c5-2 7 2.5 3 4C1.5 10 2 15 5 16c5 2 9-10 14-7s.5 13.5-4 12c-5-2.5.5-11 6-2"/></svg>
-                        <span>Trails</span>
-                    </button>
-                    <button class="controls-menu-item reset-menu-item" id="reset-advanced-view-settings" type="button">
-                        <svg class="controls-menu-icon lucide lucide-rotate-ccw-icon lucide-rotate-ccw" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                        <span>Restore defaults</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="search-menu-wrapper">
-            <button class="control-button" id="search-button" type="button" aria-expanded="false" aria-controls="search-menu">
-                <svg class="control-button-svg lucide lucide-search-icon lucide-search" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
-            </button>
-            <div class="search-menu" id="search-menu" aria-hidden="true">
-                <div class="search-menu-header">
-                    <span class="search-menu-title">Search vessels</span>
-                    <button class="search-menu-close" id="close-search-menu" type="button">
-                        <svg class="search-menu-close-icon lucide lucide-x-icon lucide-x" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                    </button>
-                </div>
-                <div class="search-input-row">
-                    <div class="search-input-wrapper">
-                        <input class="search-input" id="vessel-search-input" type="search" placeholder="Vessel name" autocomplete="off">
-                        <button class="search-input-clear" id="vessel-search-clear" type="button" aria-label="Clear vessel search" hidden>
-                            <svg class="search-input-clear-icon lucide lucide-x-icon lucide-x" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                        </button>
-                    </div>
-                    <button class="search-options-button" id="search-options-button" type="button" aria-expanded="false" aria-controls="search-options-panel" aria-label="Search options">
-                        <svg class="search-options-icon lucide lucide-funnel-icon lucide-funnel" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"/></svg>
-                    </button>
-                </div>
-                <div class="search-options-panel" id="search-options-panel" hidden>
-                    <div class="filter-category-row">
-                        <button class="controls-menu-item filter-category-button" id="filter-type-button" type="button" aria-expanded="false" aria-controls="search-filter-type-panel">
-                            <svg class="controls-menu-icon lucide lucide-ship-icon lucide-ship" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 21c.6.5 1.2 1 2.5 1s1.9-.5 2.5-1 1.2-1 2.5-1 1.9.5 2.5 1 1.2 1 2.5 1 1.9-.5 2.5-1 1.2-1 2.5-1 1.9.5 2.5 1"/><path d="M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 2.9 1.1 5.5 2.62 6"/><path d="M19 13V7a2 2 0 0 0-2-2h-3V3h-4v2H7a2 2 0 0 0-2 2v6"/><path d="M12 10v4"/><path d="M12 2v1"/></svg>
-                            <span>Type</span>
-                            <span class="filter-category-count" id="filter-type-summary">0/0</span>
-                        </button>
-                        <button class="filter-reset-button" id="reset-type-filter" type="button" aria-label="Restore type filter">
-                            <svg class="filter-reset-icon lucide lucide-rotate-ccw-icon lucide-rotate-ccw" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                        </button>
-                    </div>
-                    <div class="search-filter-panel" id="search-filter-type-panel" hidden>
-                        <div class="filter-options" id="filter-type-options"></div>
-                    </div>
-                    <div class="filter-category-row">
-                        <button class="controls-menu-item filter-category-button" id="filter-company-button" type="button" aria-expanded="false" aria-controls="search-filter-company-panel">
-                            <svg class="controls-menu-icon lucide lucide-building-2-icon lucide-building-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v8h20v-8a2 2 0 0 0-2-2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
-                            <span>Company</span>
-                            <span class="filter-category-count" id="filter-company-summary">0/0</span>
-                        </button>
-                        <button class="filter-reset-button" id="reset-company-filter" type="button" aria-label="Restore company filter">
-                            <svg class="filter-reset-icon lucide lucide-rotate-ccw-icon lucide-rotate-ccw" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                        </button>
-                    </div>
-                    <div class="search-filter-panel" id="search-filter-company-panel" hidden>
-                        <div class="filter-options" id="filter-company-options"></div>
-                    </div>
-                    <button class="controls-menu-item reset-menu-item" id="reset-search-settings" type="button">
-                        <svg class="controls-menu-icon lucide lucide-rotate-ccw-icon lucide-rotate-ccw" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                        <span>Restore all</span>
-                    </button>
-                </div>
-                <div class="search-results-header">
-                    <div class="search-results-header-content">
-                        <button class="search-header-sort is-active" id="search-sort-name" type="button" data-search-sort="name" aria-sort="ascending">
-                            <span>Name</span>
-                        </button>
-                        <button class="search-header-sort" id="search-sort-company" type="button" data-search-sort="company" aria-sort="none">
-                            <span>Company</span>
-                        </button>
-                        <button class="search-header-sort" id="search-sort-type" type="button" data-search-sort="type" aria-sort="none">
-                            <span>Type</span>
-                        </button>
-                    </div>
-                    <div class="search-results-header-actions">
-                        <button class="search-action-columns-toggle" id="search-action-columns-toggle" type="button" aria-expanded="false" aria-label="Show vessel action columns">
-                            <svg class="search-result-toggle-icon lucide lucide-funnel-plus-icon lucide-funnel-plus" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.354 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14v6a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341l1.218-1.348"/><path d="M16 6h6"/><path d="M19 3v6"/></svg>
-                        </button>
-                    </div>
-                    <span class="search-results-header-gutter" aria-hidden="true"></span>
-                </div>
-                <div class="search-results" id="vessel-search-results"></div>
             </div>
         </div>
     </div>
