@@ -1341,8 +1341,8 @@ canvas:active {
 
 #datetime-widget {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    bottom: 20px;
+    left: 20px;
     z-index: 10;
 
     width: fit-content;
@@ -1370,8 +1370,8 @@ canvas:active {
 
 .compass-widget {
     position: absolute;
-    right: 24px;
-    bottom: 24px;
+    right: 20px;
+    bottom: 20px;
     z-index: 10;
 
     display: grid;

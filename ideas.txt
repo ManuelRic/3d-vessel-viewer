@@ -14,15 +14,15 @@ Now:
     vessel name height based on vessel height?
     ✅ fix search filter(toggle svgs) for a-z and visible
     ✅ organize controls so they are in a more logical order
-    if clicked vessel is double clicked, dont hide and show same card, simply keep it visible
+    ✅ if clicked vessel is double clicked, dont hide and show same card, simply keep it visible
     ✅ no smooth on camera shift right click rotate
     add status filter
     ✅ add vessel name on hover
-    remove lower opacity on trail off button
-    remove water texture since the waves will be created by gerstner waves
-    add vessel trail on hover
+    X remove lower opacity on trail off button
+    X remove water texture since the waves will be created by gerstner waves
+    X add vessel trail on hover
     ✅ single click vessel info, double click zoom in +extra info
-    enable/disable vessel trail individually for each vessel
+    ✅ enable/disable vessel trail individually for each vessel
     add cranes
     add port and surroundings
     add collision (no phase through so when tug boats push it will be aesthetically pleasing)?
@@ -31,7 +31,7 @@ Now:
     ✅ add settings menu
     add avatar
     ✅ option to only show certain vessels or remove certain type of vessels (e.g. view only tug boats)
-    add skybox ------> removed (changed for bg image to prevent reflection issues)
+    X add skybox ------> removed (changed for bg image to prevent reflection issues)
     real time sun and light position
     ✅ compass
     ✅ enable disable water reflection/texture

@@ -357,8 +357,44 @@ function focusShipFromSearch(ship) {
         shipCenter
     );
 
-    showBoatDetails(ship.details);
+    showShipBoatDetails(ship);
     setSearchMenuOpen(false);
+}
+
+function getShipCourseDegrees(ship) {
+    const forward = getShipForward(ship);
+    const headingRadians = Math.atan2(
+        forward.dot(eastDirection),
+        forward.dot(northDirection)
+    );
+
+    return (THREE.MathUtils.radToDeg(headingRadians) + 360) % 360;
+}
+
+function formatShipCourse(ship) {
+    return `${getShipCourseDegrees(ship).toFixed(1)}${String.fromCharCode(176)}`;
+}
+
+function getShipDetailsWithLiveCourse(ship) {
+    return {
+        ...ship.details,
+        course: formatShipCourse(ship)
+    };
+}
+
+function showShipBoatDetails(ship) {
+    showBoatDetails(getShipDetailsWithLiveCourse(ship));
+}
+
+function updateSelectedShipCourseDetails() {
+    if (!selectedShip) return;
+
+    const panel = document.getElementById('boat-info-panel');
+    const courseValue = panel?.querySelector('.boat-course-value');
+
+    if (!courseValue) return;
+
+    courseValue.textContent = formatShipCourse(selectedShip);
 }
 
 const visibleSearchIcon = '<svg class="search-result-toggle-icon lucide lucide-video-icon lucide-video" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>';
@@ -1173,7 +1209,7 @@ function restoreCameraViewState(viewState) {
     );
 
     if (selectedShip) {
-        showBoatDetails(selectedShip.details);
+        showShipBoatDetails(selectedShip);
     } else {
         hideBoatDetails();
     }
@@ -2220,7 +2256,7 @@ function handleShipSingleClick(clickedShip) {
     }
 
     selectedShip = clickedShip;
-    showBoatDetails(clickedShip.details);
+    showShipBoatDetails(clickedShip);
 }
 
 window.addEventListener('click', function (event) {
@@ -2287,7 +2323,7 @@ window.addEventListener('dblclick', function (event) {
         shipCenter
     );
 
-    showBoatDetails(clickedShip.details);
+    showShipBoatDetails(clickedShip);
 });
 
 
@@ -2686,6 +2722,7 @@ function animate() {
     controls.update();
     updateCompass();
     updateVesselNameLabels();
+    updateSelectedShipCourseDetails();
 
     renderer.render(scene, camera);
 

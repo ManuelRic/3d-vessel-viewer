@@ -88,7 +88,7 @@ function renderBoatDetails(details) {
 
                 <div class="boat-row">
                     <div class="boat-label">Course</div>
-                    <div class="boat-value">${details.course}</div>
+                    <div class="boat-value boat-course-value">${details.course}</div>
                 </div>
 
                 <div class="boat-row">
