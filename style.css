@@ -240,8 +240,8 @@ canvas:active {
         var(--search-company-column-width)
         var(--search-type-column-width);
     --search-action-width: 34px;
-    --search-action-columns-width: 320px;
-    --search-action-columns: 88px 88px 110px;
+    --search-action-columns-width: 360px;
+    --search-action-columns: 104px 94px 128px;
     --search-action-toggle-width: 34px;
     --search-scrollbar-width: 8px;
     --search-menu-width: 500px;
@@ -902,6 +902,20 @@ body.light-theme .search-result-row.is-hidden-vessel .search-result-type {
     border-right: 0;
 }
 
+.search-action-column-sort-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: clip;
+    white-space: nowrap;
+}
+
+.search-action-column-sort-state-icon {
+    width: 13px;
+    height: 13px;
+    flex: 0 0 auto;
+    opacity: 0.8;
+}
+
 .search-action-column-sort,
 .search-action-column-power {
     display: flex;
@@ -924,7 +938,11 @@ body.light-theme .search-result-row.is-hidden-vessel .search-result-type {
 }
 
 .search-action-column-sort {
-    padding-left: 6px;
+    gap: 6px;
+}
+
+.search-action-column-sort {
+    padding: 0 4px;
 
     font-size: inherit;
     font-weight: inherit;
@@ -932,7 +950,6 @@ body.light-theme .search-result-row.is-hidden-vessel .search-result-type {
     text-align: center;
     text-overflow: clip;
     white-space: nowrap;
-
 }
 
 .search-action-column-power {

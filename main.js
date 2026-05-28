@@ -491,14 +491,36 @@ function createSearchResult(ship) {
     button.addEventListener('click', function () {
         focusShipFromSearch(ship);
     });
-    visibilityButton.addEventListener('click', function () {
-        setShipSearchVisibility(ship, !isVisible);
+    
+    visibilityButton.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const currentlyVisible = ship.isFilteredVisible !== false;
+
+        setShipSearchVisibility(ship, !currentlyVisible);
     });
-    trailButton.addEventListener('click', function () {
-        setShipTrailOverride(ship, isTrailVisible);
+
+    trailButton.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const currentlyTrailVisible =
+            ship.isFilteredVisible !== false &&
+            isShipTrailVisible(ship);
+
+        setShipTrailOverride(ship, currentlyTrailVisible);
     });
-    nameButton.addEventListener('click', function () {
-        setShipNameLabelOverride(ship, isNameVisible);
+
+    nameButton.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const currentlyNameVisible =
+            ship.isFilteredVisible !== false &&
+            isShipNameLabelVisible(ship);
+
+        setShipNameLabelOverride(ship, currentlyNameVisible);
     });
 
     optionsGroup.append(visibilityButton, trailButton, nameButton);
@@ -525,10 +547,35 @@ function isShipVisible(ship) {
     return true;
 }
 
+function getShipFilterType(ship) {
+    return ship.details.category ?? ship.details.type;
+}
+
+function getShipFilterCompany(ship) {
+    return ship.details.company ?? 'Unknown';
+}
+
+function allowShipThroughFilters(ship) {
+    const type = getShipFilterType(ship);
+    const company = getShipFilterCompany(ship);
+
+    if (type) {
+        activeTypeFilters.add(type);
+    }
+
+    if (company) {
+        activeCompanyFilters.add(company);
+    }
+}
+
 function setShipSearchVisibility(ship, isVisible) {
     if (isVisible) {
+        allowShipThroughFilters(ship);
+
         manuallyHiddenShipIds.delete(ship.details.id);
         manuallyShownShipIds.add(ship.details.id);
+
+        renderFilterOptions();
     } else {
         manuallyShownShipIds.delete(ship.details.id);
         manuallyHiddenShipIds.add(ship.details.id);
@@ -540,6 +587,8 @@ function setShipSearchVisibility(ship, isVisible) {
 function setAllShipSearchVisibility(isVisible, targetShips = ships) {
     targetShips.forEach(function (ship) {
         if (isVisible) {
+            allowShipThroughFilters(ship);
+
             manuallyHiddenShipIds.delete(ship.details.id);
             manuallyShownShipIds.add(ship.details.id);
         } else {
@@ -547,6 +596,10 @@ function setAllShipSearchVisibility(isVisible, targetShips = ships) {
             manuallyHiddenShipIds.add(ship.details.id);
         }
     });
+
+    if (isVisible) {
+        renderFilterOptions();
+    }
 
     applyShipFilters();
 }
@@ -565,6 +618,10 @@ function isShipTrailVisible(ship) {
 }
 
 function setShipTrailOverride(ship, shouldHideTrail) {
+    if (!ship.isFilteredVisible && !shouldHideTrail) {
+        setShipSearchVisibility(ship, true);
+    }
+
     if (shouldHideTrail) {
         manuallyShownTrailShipIds.delete(ship.details.id);
         manuallyHiddenTrailShipIds.add(ship.details.id);
@@ -579,6 +636,13 @@ function setShipTrailOverride(ship, shouldHideTrail) {
 
 function setAllShipTrailVisibility(isVisible, targetShips = ships) {
     targetShips.forEach(function (ship) {
+        if (isVisible && !ship.isFilteredVisible) {
+            allowShipThroughFilters(ship);
+
+            manuallyHiddenShipIds.delete(ship.details.id);
+            manuallyShownShipIds.add(ship.details.id);
+        }
+
         if (isVisible) {
             manuallyHiddenTrailShipIds.delete(ship.details.id);
             manuallyShownTrailShipIds.add(ship.details.id);
@@ -586,11 +650,18 @@ function setAllShipTrailVisibility(isVisible, targetShips = ships) {
             manuallyShownTrailShipIds.delete(ship.details.id);
             manuallyHiddenTrailShipIds.add(ship.details.id);
         }
-
-        setShipTrailVisibility(ship, isShipTrailVisible(ship));
     });
 
-    renderSearchResults();
+    if (isVisible) {
+        renderFilterOptions();
+        applyShipFilters();
+    } else {
+        targetShips.forEach(function (ship) {
+            setShipTrailVisibility(ship, isShipTrailVisible(ship));
+        });
+
+        renderSearchResults();
+    }
 }
 
 function isShipNameLabelVisible(ship) {
@@ -603,6 +674,10 @@ function isShipNameLabelVisible(ship) {
 }
 
 function setShipNameLabelOverride(ship, shouldHideName) {
+    if (!ship.isFilteredVisible && !shouldHideName) {
+        setShipSearchVisibility(ship, true);
+    }
+
     if (shouldHideName) {
         manuallyShownNameShipIds.delete(ship.details.id);
         manuallyHiddenNameShipIds.add(ship.details.id);
@@ -619,11 +694,19 @@ function setShipNameLabelOverride(ship, shouldHideName) {
         }
     }
 
+    updateVesselNameLabels();
     renderSearchResults();
 }
 
 function setAllShipNameLabelVisibility(isVisible, targetShips = ships) {
     targetShips.forEach(function (ship) {
+        if (isVisible && !ship.isFilteredVisible) {
+            allowShipThroughFilters(ship);
+
+            manuallyHiddenShipIds.delete(ship.details.id);
+            manuallyShownShipIds.add(ship.details.id);
+        }
+
         if (isVisible) {
             manuallyHiddenNameShipIds.delete(ship.details.id);
             manuallyShownNameShipIds.add(ship.details.id);
@@ -632,6 +715,11 @@ function setAllShipNameLabelVisibility(isVisible, targetShips = ships) {
             manuallyHiddenNameShipIds.add(ship.details.id);
         }
     });
+
+    if (isVisible) {
+        renderFilterOptions();
+        applyShipFilters();
+    }
 
     updateVesselNameLabels();
     renderSearchResults();
@@ -665,13 +753,25 @@ function compareSearchSortValues(a, b, column) {
     return String(aValue ?? '').localeCompare(String(bValue ?? '')) * direction;
 }
 
+const tallyOneIcon = '<svg class="search-action-column-sort-state-icon lucide lucide-tally1-icon lucide-tally-1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16"/></svg>';
+
+const tallyTwoIcon = '<svg class="search-action-column-sort-state-icon lucide lucide-tally2-icon lucide-tally-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16"/><path d="M9 4v16"/></svg>';
+
+const tallyThreeIcon = '<svg class="search-action-column-sort-state-icon lucide lucide-tally3-icon lucide-tally-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16"/><path d="M9 4v16"/><path d="M14 4v16"/></svg>';
+
 function updateSearchSortButtons() {
     searchSortButtons.forEach(function (button) {
         const column = button.dataset.searchSort;
         const rule = getSearchSortRule(column);
         const isActive = Boolean(rule);
+        const isActionColumn = isSearchActionSortColumn(column);
 
         button.classList.toggle('is-active', isActive);
+        button.classList.toggle(
+            'is-desc',
+            isActive && rule.direction === 'desc'
+        );
+
         button.setAttribute(
             'aria-sort',
             isActive ?
@@ -679,10 +779,27 @@ function updateSearchSortButtons() {
                 'none'
         );
 
-        if (isActive) {
-            button.setAttribute('data-sort-direction', rule.direction);
-        } else {
-            button.setAttribute('data-sort-direction', 'asc');
+        button.setAttribute(
+            'data-sort-direction',
+            isActive ? rule.direction : 'none'
+        );
+
+        if (isActionColumn) {
+            const baseText =
+                button.dataset.searchSortLabel ??
+                button.textContent.trim();
+
+            button.dataset.searchSortLabel = baseText;
+
+            const stateIcon =
+                !isActive ? tallyOneIcon :
+                rule.direction === 'asc' ? tallyTwoIcon :
+                tallyThreeIcon;
+
+            button.innerHTML = `
+                <span class="search-action-column-sort-text">${baseText}</span>
+                ${stateIcon}
+            `;
         }
     });
 }
@@ -752,6 +869,36 @@ function isAlphabeticalSortColumn(column) {
 function setSearchSortColumn(column) {
     const existingRule = getSearchSortRule(column);
     const isAlphabeticalColumn = isAlphabeticalSortColumn(column);
+    const isActionColumn = isSearchActionSortColumn(column);
+
+    if (isActionColumn) {
+        if (!existingRule) {
+            searchSortRules = [
+                {
+                    column: column,
+                    direction: 'asc'
+                },
+                ...searchSortRules
+            ];
+        } else if (existingRule.direction === 'asc') {
+            existingRule.direction = 'desc';
+
+            searchSortRules = [
+                existingRule,
+                ...searchSortRules.filter(function (rule) {
+                    return rule.column !== column;
+                })
+            ];
+        } else {
+            searchSortRules = searchSortRules.filter(function (rule) {
+                return rule.column !== column;
+            });
+        }
+
+        updateSearchSortButtons();
+        renderSearchResults();
+        return;
+    }
 
     if (existingRule) {
         existingRule.direction = existingRule.direction === 'asc' ? 'desc' : 'asc';
@@ -873,7 +1020,7 @@ function updateSearchColumnWidths() {
     const cellFont = `600 12px ${bodyFont}`;
     const nameFont = `700 12px ${bodyFont}`;
     const headerFont = `800 10px ${bodyFont}`;
-    const actionWidth = searchActionColumnsVisible ? 320 : 34;
+    const actionWidth = searchActionColumnsVisible ? 360 : 34;
     const scrollbarWidth = 8;
     const menuPadding = 32;
 
@@ -929,10 +1076,15 @@ function resetSearchSettings() {
     manuallyHiddenTrailShipIds.clear();
     manuallyShownNameShipIds.clear();
     manuallyHiddenNameShipIds.clear();
-    searchSortColumn = 'name';
-    searchSortDirection = 'asc';
+    searchSortRules = [
+        {
+            column: 'name',
+            direction: 'asc'
+        }
+    ];
+
     searchSortButtons.forEach(function (button) {
-        button.setAttribute('data-sort-direction', 'asc');
+        button.setAttribute('data-sort-direction', 'none');
     });
     updateSearchSortButtons();
     setSearchActionColumnsVisible(false);
