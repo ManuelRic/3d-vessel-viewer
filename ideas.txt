@@ -5,7 +5,7 @@ Now:
     IMPORT WATER
     ✅ i want to make the search dropdown menu be a side menu on the left that appears on click, and i want it not to take much space since the main and important thing is the rednder, but i dont want to sacrifice menu ux/ui comodity and aesthetics
     ✅ clciking main buttons should hide opened menus?
-    adapt card info so it shows the real vessel course
+    ✅ adapt card info so it shows the real vessel course
     ✅ !Remove filter icon and add it on the name and company headers so that companies and vessel types can be sorted
     ✅ Clicking on a diff button should close the current one (search - settings - view)
     ✅ Search close button should work

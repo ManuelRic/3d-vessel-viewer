@@ -198,8 +198,12 @@ let waterEffectsEnabled = true;
 let lightDirectionEnabled = true;
 let compassVisible = true;
 let vesselNameLabelsVisible = false;
-let searchSortColumn = 'name';
-let searchSortDirection = 'asc';
+let searchSortRules = [
+    {
+        column: 'name',
+        direction: 'asc'
+    }
+];
 let searchActionColumnsVisible = false;
 
 // -----------------------------
@@ -336,7 +340,26 @@ function setViewMenuView(viewName) {
 
 function focusShipFromSearch(ship) {
     if (!ship.isFilteredVisible) {
-        setShipSearchVisibility(ship, true);
+        const type = ship.details.category ?? ship.details.type;
+        const company = ship.details.company ?? 'Unknown';
+
+        if (type) {
+            activeTypeFilters.add(type);
+        }
+
+        if (company) {
+            activeCompanyFilters.add(company);
+        }
+
+        manuallyHiddenShipIds.delete(ship.details.id);
+        manuallyShownShipIds.add(ship.details.id);
+
+        renderFilterOptions();
+        applyShipFilters();
+    }
+
+    if (!ship.isFilteredVisible) {
+        return;
     }
 
     clearTopViewRestoreState();
@@ -493,10 +516,13 @@ function isShipVisibleByFilters(ship) {
 }
 
 function isShipVisible(ship) {
-    if (manuallyShownShipIds.has(ship.details.id)) return true;
-    if (manuallyHiddenShipIds.has(ship.details.id)) return false;
+    const isAllowedByFilters = isShipVisibleByFilters(ship);
 
-    return isShipVisibleByFilters(ship);
+    if (!isAllowedByFilters) return false;
+    if (manuallyHiddenShipIds.has(ship.details.id)) return false;
+    if (manuallyShownShipIds.has(ship.details.id)) return true;
+
+    return true;
 }
 
 function setShipSearchVisibility(ship, isVisible) {
@@ -511,8 +537,8 @@ function setShipSearchVisibility(ship, isVisible) {
     applyShipFilters();
 }
 
-function setAllShipSearchVisibility(isVisible) {
-    ships.forEach(function (ship) {
+function setAllShipSearchVisibility(isVisible, targetShips = ships) {
+    targetShips.forEach(function (ship) {
         if (isVisible) {
             manuallyHiddenShipIds.delete(ship.details.id);
             manuallyShownShipIds.add(ship.details.id);
@@ -551,8 +577,8 @@ function setShipTrailOverride(ship, shouldHideTrail) {
     renderSearchResults();
 }
 
-function setAllShipTrailVisibility(isVisible) {
-    ships.forEach(function (ship) {
+function setAllShipTrailVisibility(isVisible, targetShips = ships) {
+    targetShips.forEach(function (ship) {
         if (isVisible) {
             manuallyHiddenTrailShipIds.delete(ship.details.id);
             manuallyShownTrailShipIds.add(ship.details.id);
@@ -596,8 +622,8 @@ function setShipNameLabelOverride(ship, shouldHideName) {
     renderSearchResults();
 }
 
-function setAllShipNameLabelVisibility(isVisible) {
-    ships.forEach(function (ship) {
+function setAllShipNameLabelVisibility(isVisible, targetShips = ships) {
+    targetShips.forEach(function (ship) {
         if (isVisible) {
             manuallyHiddenNameShipIds.delete(ship.details.id);
             manuallyShownNameShipIds.add(ship.details.id);
@@ -611,17 +637,53 @@ function setAllShipNameLabelVisibility(isVisible) {
     renderSearchResults();
 }
 
+function getSearchSortRule(column) {
+    return searchSortRules.find(function (rule) {
+        return rule.column === column;
+    });
+}
+
+function getSearchSortDirection(column) {
+    const rule = getSearchSortRule(column);
+
+    return rule ? rule.direction : null;
+}
+
+function compareSearchSortValues(a, b, column) {
+    const direction = getSearchSortDirection(column) === 'desc' ? -1 : 1;
+
+    if (isSearchActionSortColumn(column)) {
+        const aActive = getShipSearchActionSortValue(a, column);
+        const bActive = getShipSearchActionSortValue(b, column);
+
+        return (Number(bActive) - Number(aActive)) * direction;
+    }
+
+    const aValue = getShipSearchSortValue(a, column);
+    const bValue = getShipSearchSortValue(b, column);
+
+    return String(aValue ?? '').localeCompare(String(bValue ?? '')) * direction;
+}
+
 function updateSearchSortButtons() {
     searchSortButtons.forEach(function (button) {
-        const isActive = button.dataset.searchSort === searchSortColumn;
+        const column = button.dataset.searchSort;
+        const rule = getSearchSortRule(column);
+        const isActive = Boolean(rule);
 
         button.classList.toggle('is-active', isActive);
         button.setAttribute(
             'aria-sort',
             isActive ?
-                (searchSortDirection === 'asc' ? 'ascending' : 'descending') :
+                (rule.direction === 'asc' ? 'ascending' : 'descending') :
                 'none'
         );
+
+        if (isActive) {
+            button.setAttribute('data-sort-direction', rule.direction);
+        } else {
+            button.setAttribute('data-sort-direction', 'asc');
+        }
     });
 }
 
@@ -683,17 +745,42 @@ function toggleSearchFilterPanel(panel, button) {
     setSearchOptionsOpen(isOpen);
 }
 
+function isAlphabeticalSortColumn(column) {
+    return column === 'name' || column === 'company' || column === 'type';
+}
+
 function setSearchSortColumn(column) {
-    if (searchSortColumn === column) {
-        searchSortDirection = searchSortDirection === 'asc' ? 'desc' : 'asc';
+    const existingRule = getSearchSortRule(column);
+    const isAlphabeticalColumn = isAlphabeticalSortColumn(column);
+
+    if (existingRule) {
+        existingRule.direction = existingRule.direction === 'asc' ? 'desc' : 'asc';
+
+        searchSortRules = [
+            existingRule,
+            ...searchSortRules.filter(function (rule) {
+                return rule.column !== column;
+            })
+        ];
     } else {
-        searchSortColumn = column;
-        searchSortDirection = 'asc';
+        searchSortRules = [
+            {
+                column: column,
+                direction: 'asc'
+            },
+            ...searchSortRules
+        ];
     }
 
-    document
-        .querySelector(`[data-search-sort="${column}"]`)
-        ?.setAttribute('data-sort-direction', searchSortDirection);
+    if (isAlphabeticalColumn) {
+        searchSortRules = searchSortRules.filter(function (rule) {
+            return (
+                rule.column === column ||
+                !isAlphabeticalSortColumn(rule.column)
+            );
+        });
+    }
+
     updateSearchSortButtons();
     renderSearchResults();
 }
@@ -723,25 +810,50 @@ function isShipSearchNameVisible(ship) {
     return ship.isFilteredVisible !== false && isShipNameLabelVisible(ship);
 }
 
+function getCurrentSearchMatches() {
+    const query = vesselSearchInput?.value.trim().toLowerCase() ?? '';
+
+    return ships.filter(function (ship) {
+        if (!query) return true;
+
+        return ship.details.name.toLowerCase().includes(query);
+    });
+}
+
 function toggleAllSearchActionColumn(column) {
+    const matches = getCurrentSearchMatches();
+
+    if (matches.length === 0) {
+        return;
+    }
+
     if (column === 'visible') {
-        setAllShipSearchVisibility(ships.some(function (ship) {
-            return !isShipVisible(ship);
-        }));
+        setAllShipSearchVisibility(
+            matches.some(function (ship) {
+                return !isShipVisible(ship);
+            }),
+            matches
+        );
         return;
     }
 
     if (column === 'trail') {
-        setAllShipTrailVisibility(ships.some(function (ship) {
-            return ship.isFilteredVisible !== false && !isShipTrailVisible(ship);
-        }));
+        setAllShipTrailVisibility(
+            matches.some(function (ship) {
+                return ship.isFilteredVisible !== false && !isShipTrailVisible(ship);
+            }),
+            matches
+        );
         return;
     }
 
     if (column === 'label') {
-        setAllShipNameLabelVisibility(ships.some(function (ship) {
-            return !isShipSearchNameVisible(ship);
-        }));
+        setAllShipNameLabelVisibility(
+            matches.some(function (ship) {
+                return !isShipSearchNameVisible(ship);
+            }),
+            matches
+        );
     }
 }
 
@@ -761,34 +873,40 @@ function updateSearchColumnWidths() {
     const cellFont = `600 12px ${bodyFont}`;
     const nameFont = `700 12px ${bodyFont}`;
     const headerFont = `800 10px ${bodyFont}`;
-    const actionWidth = searchActionColumnsVisible ? 298 : 34;
+    const actionWidth = searchActionColumnsVisible ? 320 : 34;
     const scrollbarWidth = 8;
     const menuPadding = 32;
 
+    const headerSortExtraWidth = 40;
+    const headerFilterExtraWidth = 34;
+    const cellExtraWidth = 24;
+
     const nameWidth = Math.max(
-        measureSearchTextWidth(measurer, 'Name', headerFont) + 54,
+        measureSearchTextWidth(measurer, 'Name', headerFont) + headerSortExtraWidth,
         ...ships.map(function (ship) {
-            return measureSearchTextWidth(measurer, ship.details.name, nameFont) + 28;
+            return measureSearchTextWidth(measurer, ship.details.name, nameFont) + cellExtraWidth;
         })
     );
+
     const companyWidth = Math.max(
-        measureSearchTextWidth(measurer, 'Company', headerFont) + 88,
+        measureSearchTextWidth(measurer, 'Company', headerFont) + headerSortExtraWidth + headerFilterExtraWidth,
         ...ships.map(function (ship) {
             return measureSearchTextWidth(
                 measurer,
                 ship.details.company ?? 'Unknown',
                 cellFont
-            ) + 28;
+            ) + cellExtraWidth;
         })
     );
+
     const typeWidth = Math.max(
-        measureSearchTextWidth(measurer, 'Type', headerFont) + 88,
+        measureSearchTextWidth(measurer, 'Type', headerFont) + headerSortExtraWidth + headerFilterExtraWidth,
         ...ships.map(function (ship) {
             return measureSearchTextWidth(
                 measurer,
                 ship.details.category ?? ship.details.type,
                 cellFont
-            ) + 28;
+            ) + cellExtraWidth;
         })
     );
     const menuWidth =
@@ -842,22 +960,15 @@ function renderSearchResults() {
             return ship.details.name.toLowerCase().includes(query);
         })
         .sort(function (a, b) {
-            const fallbackSort = a.details.name.localeCompare(b.details.name);
-            const aValue = getShipSearchSortValue(a, searchSortColumn);
-            const bValue = getShipSearchSortValue(b, searchSortColumn);
-            const direction = searchSortDirection === 'asc' ? 1 : -1;
+            for (const rule of searchSortRules) {
+                const result = compareSearchSortValues(a, b, rule.column);
 
-            if (isSearchActionSortColumn(searchSortColumn)) {
-                const aActive = getShipSearchActionSortValue(a, searchSortColumn);
-                const bActive = getShipSearchActionSortValue(b, searchSortColumn);
-                const primarySort = Number(bActive) - Number(aActive);
-
-                return (primarySort || fallbackSort) * direction;
+                if (result !== 0) {
+                    return result;
+                }
             }
 
-            const primarySort = aValue.localeCompare(bValue);
-
-            return (primarySort || fallbackSort) * direction;
+            return a.details.name.localeCompare(b.details.name);
         });
 
     if (matches.length === 0) {
@@ -1459,8 +1570,8 @@ renderer.domElement.addEventListener('contextmenu', function (event) {
 // -----------------------------
 // WATER
 // -----------------------------
-const waterWidth = 3000;
-const waterHeight = 3000;
+const waterWidth = 7000;
+const waterHeight = 4000;
 const waterGeometry = new THREE.PlaneGeometry(waterWidth, waterHeight);
 const darkWaterColor = new THREE.Color(0x02070c);
 const litWaterColor = new THREE.Color(0x1f4f7a);

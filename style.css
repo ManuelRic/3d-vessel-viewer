@@ -240,8 +240,9 @@ canvas:active {
         var(--search-company-column-width)
         var(--search-type-column-width);
     --search-action-width: 34px;
-    --search-action-columns-width: 298px;
-    --search-action-columns: repeat(3, 88px);
+    --search-action-columns-width: 320px;
+    --search-action-columns: 88px 88px 110px;
+    --search-action-toggle-width: 34px;
     --search-scrollbar-width: 8px;
     --search-menu-width: 500px;
 
@@ -786,6 +787,18 @@ canvas:active {
     scrollbar-gutter: stable;
 }
 
+.search-result-row.is-hidden-vessel .search-result-name,
+.search-result-row.is-hidden-vessel .search-result-company,
+.search-result-row.is-hidden-vessel .search-result-type {
+    color: rgba(235, 239, 255, 0.42);
+}
+
+body.light-theme .search-result-row.is-hidden-vessel .search-result-name,
+body.light-theme .search-result-row.is-hidden-vessel .search-result-company,
+body.light-theme .search-result-row.is-hidden-vessel .search-result-type {
+    color: rgba(17, 24, 39, 0.42);
+}
+
 .search-results-header {
     display: grid;
     grid-template-columns:
@@ -820,13 +833,15 @@ canvas:active {
 
 .search-header-cell {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) 34px;
     align-items: center;
 
     min-width: 0;
     height: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
 
-    border-right: 1px solid rgba(255, 255, 255, 0.075);
+    border-right: 1px solid rgba(255, 255, 255, 0.055);
 }
 
 .search-header-cell:last-child {
@@ -835,8 +850,9 @@ canvas:active {
 
 .search-results-header-actions {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 34px;
+    grid-template-columns: var(--search-action-toggle-width);
     align-items: center;
+    justify-content: center;
 
     width: var(--search-action-width);
     min-width: 0;
@@ -845,9 +861,14 @@ canvas:active {
     border-left: 1px solid rgba(255, 255, 255, 0.075);
 }
 
+.search-menu.has-search-actions .search-results-header-actions {
+    grid-template-columns: var(--search-action-columns) var(--search-action-toggle-width);
+    justify-content: stretch;
+}
+
 .search-action-column-labels {
     display: none;
-    grid-column: 1;
+    grid-column: 1 / 4;
     grid-row: 1;
     grid-template-columns: var(--search-action-columns);
     align-items: center;
@@ -938,7 +959,7 @@ canvas:active {
 
 .search-action-columns-toggle {
     display: inline-flex;
-    grid-column: 2;
+    grid-column: 1;
     grid-row: 1;
     align-items: center;
     justify-content: center;
@@ -959,6 +980,10 @@ canvas:active {
         background 0.18s ease,
         border-color 0.18s ease,
         color 0.18s ease;
+}
+
+.search-menu.has-search-actions .search-action-columns-toggle {
+    grid-column: 4;
 }
 
 .search-action-columns-toggle:hover,
@@ -994,7 +1019,9 @@ canvas:active {
 
     min-width: 0;
     height: 100%;
-    padding: 0 8px 0 14px;
+    box-sizing: border-box;
+    padding: 0 8px 0 10px;
+    overflow: hidden;
 
     color: #ebefff;
     background: transparent;
@@ -1035,8 +1062,10 @@ canvas:active {
     align-items: center;
     justify-content: center;
 
-    width: 30px;
+    width: 34px;
+    min-width: 34px;
     height: 100%;
+    box-sizing: border-box;
     padding: 0;
 
     color: #ebefff;
@@ -1171,7 +1200,8 @@ canvas:active {
 
 .search-result-content > span {
     min-height: 42px;
-    padding: 0 14px;
+    box-sizing: border-box;
+    padding: 0 8px 0 10px;
 
     display: flex;
     align-items: center;
@@ -1179,12 +1209,6 @@ canvas:active {
     border-right: 1px solid rgba(255, 255, 255, 0.055);
 
     text-align: left;
-}
-
-.search-result-content > span,
-.search-header-sort {
-    padding-left: 10px;
-    padding-right: 8px;
 }
 
 .search-result-content > span:last-child {
@@ -1204,8 +1228,7 @@ canvas:active {
 
 .search-result-inline-options {
     display: none;
-    grid-auto-flow: column;
-    grid-auto-columns: 88px;
+    grid-template-columns: var(--search-action-columns);
     align-items: center;
     justify-content: start;
 
@@ -1226,8 +1249,8 @@ canvas:active {
     align-items: center;
     justify-content: center;
 
-    width: 88px;
-    min-width: 88px;
+    width: 100%;
+    min-width: 0;
     min-height: 34px;
     padding: 0;
 
@@ -2053,8 +2076,8 @@ body.light-theme .search-header-sort-icon {
     color: rgba(17, 24, 39, 0.42);
 }
 
-body.light-theme .search-header-cell {
-    border-right-color: rgba(17, 24, 39, 0.075);
+.search-header-cell {
+    border-right: 1px solid rgba(255, 255, 255, 0.055);
 }
 
 body.light-theme .search-results-header-actions {
